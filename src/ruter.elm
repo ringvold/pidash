@@ -1,7 +1,3 @@
--- Read more about this program in the official Elm guide:
--- https://guide.elm-lang.org/architecture/effects/http.html
-
-
 module Main exposing (..)
 
 import Html exposing (..)
@@ -16,8 +12,10 @@ import Date exposing (..)
 import Time exposing (Time)
 import Date.Extra as Date exposing (Interval(..))
 import Task exposing (perform)
+import List.Extra exposing (elemIndex, setAt, find)
 
 
+main : Program Never Model Msg
 main =
     Html.program
         { init = init
@@ -32,21 +30,38 @@ main =
 
 
 type alias Model =
-    { lineIds : List Int
-    , departures : List MonitoredVehicleJourney
+    { lineStops : List LineStop
     , currentTime : Maybe Time.Time
     }
 
 
+type alias LineStop =
+    { name : String
+    , id : Int
+    , departures : List VehicleArrivalTime
+    , direction : Int
+    }
 
--- 3012122
+
+
+-- 3012122, 3010443
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model [ 3010443 ] [] Nothing
-    , Cmd.none
-    )
+    let
+        lineStops =
+            [ LineStop "Storo sør" 3012122 [] 0
+            , LineStop "Grefsenveien nord" 3010443 [] 0
+            ]
+
+        model =
+            Model lineStops Nothing
+    in
+        Debug.log "init"
+            ( model
+            , fetchDepartures model
+            )
 
 
 
@@ -74,17 +89,83 @@ update msg model =
             { model | currentTime = Just time } ! []
 
         TriggerFetch ->
-            ( model
-            , Cmd.batch <| List.append [ Task.perform NewTime Time.now ] <| List.map getDeparture model.lineIds
-            )
+            Debug.log "TriggerFetch"
+                ( model
+                , fetchDepartures model
+                )
 
         FetchDepartures (Ok departures) ->
             Debug.log "Ok"
-                ( { model | departures = departures }, Cmd.none )
+                ( { model | lineStops = updateLineStop model.lineStops departures }
+                , Cmd.none
+                )
 
         FetchDepartures (Err _) ->
             Debug.log "Error"
                 ( model, Cmd.none )
+
+
+fetchDepartures : Model -> Cmd Msg
+fetchDepartures model =
+    Debug.log "fetch"
+        Cmd.batch
+    <|
+        List.append [ Task.perform NewTime Time.now ] <|
+            List.map getDeparture model.lineStops
+
+
+updateLineStop : List LineStop -> List VehicleArrivalTime -> List LineStop
+updateLineStop lineStops departures =
+    let
+        aStop : Maybe VehicleArrivalTime
+        aStop =
+            (List.head departures)
+
+        lineId : Int
+        lineId =
+            case aStop of
+                Just theStop ->
+                    theStop.lineId
+
+                Nothing ->
+                    -1
+
+        lineStop : LineStop
+        lineStop =
+            case getLineStopById lineStops lineId of
+                Nothing ->
+                    LineStop "" 0 [] 0
+
+                Just ls ->
+                    ls
+
+        elementIndex : Int
+        elementIndex =
+            case List.Extra.elemIndex lineStop lineStops of
+                Nothing ->
+                    -1
+
+                Just idx ->
+                    idx
+
+        updated =
+            { lineStop | departures = departures }
+
+        newLineStops =
+            List.Extra.setAt elementIndex updated lineStops
+    in
+        case newLineStops of
+            Nothing ->
+                lineStops
+
+            Just upatedLS ->
+                Debug.log "update"
+                    upatedLS
+
+
+getLineStopById : List LineStop -> Int -> Maybe LineStop
+getLineStopById lineStops lineId =
+    List.Extra.find (\ls -> ls.id == lineId) lineStops
 
 
 
@@ -94,22 +175,38 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ h1 [ onClick TriggerFetch ] [ text "Overskrift" ]
-        , lazy2 viewDepartures model.departures model.currentTime
+        [ h1 [ onClick TriggerFetch ] [ text "Avganger" ]
+        , lazy2 viewLineStop model.lineStops model.currentTime
         ]
 
 
-viewDepartures : List MonitoredVehicleJourney -> Maybe Time -> Html Msg
-viewDepartures departures currentTime =
+viewLineStop : List LineStop -> Maybe Time -> Html Msg
+viewLineStop lineStops currentTime =
     let
         timeList =
-            List.repeat (List.length departures) currentTime
+            List.repeat (List.length lineStops) currentTime
+    in
+        div
+            [ class "lineStops" ]
+        <|
+            List.map2 viewDepartures lineStops timeList
+
+
+viewDepartures : LineStop -> Maybe Time -> Html Msg
+viewDepartures lineStop currentTime =
+    let
+        timeList =
+            List.repeat (List.length lineStop.departures) currentTime
     in
         div [ class "departures" ] <|
-            List.map2 viewDeparture departures timeList
+            List.append
+                [ h2 [] [ text lineStop.name ]
+                ]
+            <|
+                List.map2 viewDeparture lineStop.departures timeList
 
 
-viewDeparture : MonitoredVehicleJourney -> Maybe Time -> Html Msg
+viewDeparture : VehicleArrivalTime -> Maybe Time -> Html Msg
 viewDeparture departure currentTime =
     let
         timeUntilArrival =
@@ -122,14 +219,10 @@ viewDeparture departure currentTime =
                         getTimeUntilArrival (Date.fromTime theTime) departure.expectedArrivalTime
                             ++ " min"
     in
-        Debug.log (toString currentTime)
-            div
+        div
             [ class "departure" ]
-            [ h2 []
-                [ text <|
-                    departure.publishedLineName
-                        ++ departure.destinationName
-                ]
+            [ h3 []
+                [ text <| departureName departure ]
             , div [] [ timeUntilArrival ]
             ]
 
@@ -140,42 +233,52 @@ getTimeUntilArrival currentTime arrivalTime =
         Date.diff Minute currentTime arrivalTime
 
 
+departureName : VehicleArrivalTime -> String
+departureName departure =
+    departure.publishedLineName ++ " " ++ departure.destinationName
+
+
 
 -- HTTP
 
 
-getDeparture : Int -> Cmd Msg
-getDeparture id =
+getDeparture : LineStop -> Cmd Msg
+getDeparture stop =
     let
         url =
-            "http://localhost:8080/" ++ toString id
+            "http://localhost:8080/" ++ toString stop.id
     in
-        Http.send FetchDepartures (Http.get url decodeResponse)
+        Debug.log "Fetching"
+            Http.send
+            FetchDepartures
+            (Http.get url decodeResponse)
 
 
-decodeResponse : Json.Decoder (List MonitoredVehicleJourney)
+decodeResponse : Json.Decoder (List VehicleArrivalTime)
 decodeResponse =
-    Json.list monitoredVehicleJourney
+    Json.list vehicleArrivalTime
 
 
-monitoredVehicleJourney : Json.Decoder MonitoredVehicleJourney
-monitoredVehicleJourney =
-    succeed MonitoredVehicleJourney
+vehicleArrivalTime : Json.Decoder VehicleArrivalTime
+vehicleArrivalTime =
+    succeed VehicleArrivalTime
         |: (field "destinationName" string)
         |: (field "publishedLineName" string)
         |: (field "vehicleMode" int)
         |: (field "directionRef" string)
         |: (field "expectedArrivalTime" date)
+        |: (field "lineId" int)
 
 
-type alias MonitoredVehicleJourney =
+type alias VehicleArrivalTime =
     { destinationName : String
     , publishedLineName : String
     , vehicleMode : Int
     , directionRef : String
     , expectedArrivalTime : Date
+    , lineId : Int
     }
 
 
 type alias Response =
-    List MonitoredVehicleJourney
+    List VehicleArrivalTime
