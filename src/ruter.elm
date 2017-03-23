@@ -13,6 +13,7 @@ import Time exposing (Time)
 import Date.Extra as Date exposing (Interval(..))
 import Task exposing (perform)
 import List.Extra exposing (elemIndex, setAt, find)
+import Time exposing (Time, second)
 
 
 main : Program Never Model Msg
@@ -21,8 +22,14 @@ main =
         { init = init
         , view = view
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscription
         }
+
+
+subscription : Model -> Sub Msg
+subscription model =
+    Sub.batch
+        [ Time.every (10 * Time.second) (\_ -> DeparturesRequested) ]
 
 
 
@@ -58,10 +65,9 @@ init =
         model =
             Model lineStops Nothing
     in
-        Debug.log "init"
-            ( model
-            , fetchDepartures model
-            )
+        ( model
+        , fetchDepartures model
+        )
 
 
 
@@ -70,10 +76,10 @@ init =
 
 type Msg
     = NoOp
-    | GetTime
-    | NewTime Time
-    | TriggerFetch
-    | FetchDepartures (Result Http.Error Response)
+    | TimeRequested
+    | TimeReceived Time
+    | DeparturesRequested
+    | DeparturesReceived (Result Http.Error Response)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -82,35 +88,30 @@ update msg model =
         NoOp ->
             model ! []
 
-        GetTime ->
-            model ! [ Task.perform NewTime Time.now ]
+        TimeRequested ->
+            model ! [ Task.perform TimeReceived Time.now ]
 
-        NewTime time ->
+        TimeReceived time ->
             { model | currentTime = Just time } ! []
 
-        TriggerFetch ->
-            Debug.log "TriggerFetch"
-                ( model
-                , fetchDepartures model
-                )
+        DeparturesRequested ->
+            ( model
+            , fetchDepartures model
+            )
 
-        FetchDepartures (Ok departures) ->
-            Debug.log "Ok"
-                ( { model | lineStops = updateLineStop model.lineStops departures }
-                , Cmd.none
-                )
+        DeparturesReceived (Ok departures) ->
+            ( { model | lineStops = updateLineStop model.lineStops departures }
+            , Cmd.none
+            )
 
-        FetchDepartures (Err _) ->
-            Debug.log "Error"
-                ( model, Cmd.none )
+        DeparturesReceived (Err _) ->
+            ( model, Cmd.none )
 
 
 fetchDepartures : Model -> Cmd Msg
 fetchDepartures model =
-    Debug.log "fetch"
-        Cmd.batch
-    <|
-        List.append [ Task.perform NewTime Time.now ] <|
+    Cmd.batch <|
+        List.append [ Task.perform TimeReceived Time.now ] <|
             List.map getDeparture model.lineStops
 
 
@@ -158,9 +159,8 @@ updateLineStop lineStops departures =
             Nothing ->
                 lineStops
 
-            Just upatedLS ->
-                Debug.log "update"
-                    upatedLS
+            Just upatedLineStop ->
+                upatedLineStop
 
 
 getLineStopById : List LineStop -> Int -> Maybe LineStop
@@ -175,7 +175,7 @@ getLineStopById lineStops lineId =
 view : Model -> Html Msg
 view model =
     div []
-        [ h1 [ onClick TriggerFetch ] [ text "Avganger" ]
+        [ h1 [ onClick DeparturesRequested ] [ text "Avganger" ]
         , lazy2 viewLineStop model.lineStops model.currentTime
         ]
 
@@ -217,7 +217,6 @@ viewDeparture departure currentTime =
                 Just theTime ->
                     text <|
                         getTimeUntilArrival (Date.fromTime theTime) departure.expectedArrivalTime
-                            ++ " min"
     in
         div
             [ class "departure" ]
@@ -229,8 +228,14 @@ viewDeparture departure currentTime =
 
 getTimeUntilArrival : Date -> Date -> String
 getTimeUntilArrival currentTime arrivalTime =
-    toString <|
-        Date.diff Minute currentTime arrivalTime
+    let
+        timeUntilArrival =
+            toString <| Date.diff Minute currentTime arrivalTime
+    in
+        if "0" == timeUntilArrival then
+            "Nå"
+        else
+            timeUntilArrival ++ " min"
 
 
 departureName : VehicleArrivalTime -> String
@@ -248,9 +253,8 @@ getDeparture stop =
         url =
             "http://localhost:8080/" ++ toString stop.id
     in
-        Debug.log "Fetching"
-            Http.send
-            FetchDepartures
+        Http.send
+            DeparturesReceived
             (Http.get url decodeResponse)
 
 
