@@ -3,17 +3,17 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Html.Lazy exposing (lazy, lazy2)
+import Html.Lazy exposing (lazy2)
 import Http
-import Json.Decode as Json
+import Json.Decode as Json exposing (Decoder, decodeValue, succeed, string, int, field)
 import Json.Decode.Extra exposing ((|:), date)
-import Json.Decode exposing (Decoder, decodeValue, succeed, string, int, field)
+import Json.Decode
 import Date exposing (..)
 import Time exposing (Time)
 import Date.Extra as Date exposing (Interval(..))
 import Task exposing (perform)
-import List.Extra exposing (elemIndex, setAt, find)
 import Time exposing (Time, second)
+import Dict exposing (Dict)
 
 
 main : Program Never Model Msg
@@ -22,14 +22,14 @@ main =
         { init = init
         , view = view
         , update = update
-        , subscriptions = subscription
+        , subscriptions = subscriptions
         }
 
 
-subscription : Model -> Sub Msg
-subscription model =
+subscriptions : Model -> Sub Msg
+subscriptions model =
     Sub.batch
-        [ Time.every (10 * Time.second) (\_ -> DeparturesRequested) ]
+        [ Time.every (60 * Time.second) (\_ -> DeparturesRequested) ]
 
 
 
@@ -37,7 +37,7 @@ subscription model =
 
 
 type alias Model =
-    { lineStops : List LineStop
+    { lineStops : Dict Int LineStop
     , currentTime : Maybe Time.Time
     , url : String
     }
@@ -59,9 +59,10 @@ init : ( Model, Cmd Msg )
 init =
     let
         lineStops =
-            [ LineStop "Storo sør" 3012122 [] 0
-            , LineStop "Grefsenveien nord" 3010443 [] 0
-            ]
+            Dict.fromList
+                [ ( 3012122, LineStop "Storo sør" 3012122 [] 0 )
+                , ( 3010443, LineStop "Grefsenveien nord" 3010443 [] 0 )
+                ]
 
         url =
             "http://localhost:8081/"
@@ -84,6 +85,7 @@ type Msg
     | TimeReceived Time
     | DeparturesRequested
     | DeparturesReceived (Result Http.Error Response)
+    | NewLineStopClicked
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -112,6 +114,9 @@ update msg model =
         DeparturesReceived (Err _) ->
             ( model, Cmd.none )
 
+        NewLineStopClicked ->
+            model ! []
+
 
 fetchDepartures : Model -> Cmd Msg
 fetchDepartures model =
@@ -119,60 +124,34 @@ fetchDepartures model =
         List.append
             [ Task.perform TimeReceived Time.now ]
         <|
-            List.map (\stop -> getDeparture stop model.url) model.lineStops
+            List.map (\stop -> getDeparture stop model.url) (Dict.values model.lineStops)
 
 
-updateLineStop : List LineStop -> List VehicleArrivalTime -> List LineStop
+updateLineStop : Dict Int LineStop -> List VehicleArrivalTime -> Dict Int LineStop
 updateLineStop lineStops departures =
     let
-        aStop : Maybe VehicleArrivalTime
-        aStop =
+        departure : Maybe VehicleArrivalTime
+        departure =
             (List.head departures)
 
         lineId : Int
         lineId =
-            case aStop of
-                Just theStop ->
-                    theStop.lineId
+            case departure of
+                Just departure ->
+                    departure.lineId
 
                 Nothing ->
                     -1
 
-        lineStop : LineStop
         lineStop =
-            case getLineStopById lineStops lineId of
-                Nothing ->
-                    LineStop "" 0 [] 0
-
-                Just ls ->
-                    ls
-
-        elementIndex : Int
-        elementIndex =
-            case List.Extra.elemIndex lineStop lineStops of
-                Nothing ->
-                    -1
-
-                Just idx ->
-                    idx
-
-        updated =
-            { lineStop | departures = departures }
-
-        newLineStops =
-            List.Extra.setAt elementIndex updated lineStops
+            Dict.get lineId lineStops
     in
-        case newLineStops of
+        case Dict.get lineId lineStops of
+            Just m ->
+                Dict.insert lineId ({ m | departures = departures }) lineStops
+
             Nothing ->
                 lineStops
-
-            Just upatedLineStop ->
-                upatedLineStop
-
-
-getLineStopById : List LineStop -> Int -> Maybe LineStop
-getLineStopById lineStops lineId =
-    List.Extra.find (\ls -> ls.id == lineId) lineStops
 
 
 
@@ -183,7 +162,8 @@ view : Model -> Html Msg
 view model =
     div [ class "container-fluid" ]
         [ h1 [ onClick DeparturesRequested ] [ text "Avganger" ]
-        , lazy2 viewLineStop model.lineStops model.currentTime
+        , button [ class "btn btn-primary" ] [ text "Legg til stopp" ]
+        , lazy2 viewLineStop (Dict.values model.lineStops) model.currentTime
         ]
 
 
