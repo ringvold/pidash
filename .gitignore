@@ -1,5 +1,4 @@
-npm-debug.log
-elm-stuff
-node_modules
-
-index.html
+elm-stuff/
+node_modules/
+tmp/
+dist/

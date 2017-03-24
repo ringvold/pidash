@@ -64,7 +64,7 @@ init =
             ]
 
         url =
-            "http://localhost:8080/"
+            "http://localhost:8081/"
 
         model =
             Model lineStops Nothing url
@@ -181,7 +181,7 @@ getLineStopById lineStops lineId =
 
 view : Model -> Html Msg
 view model =
-    div []
+    div [ class "container-fluid" ]
         [ h1 [ onClick DeparturesRequested ] [ text "Avganger" ]
         , lazy2 viewLineStop model.lineStops model.currentTime
         ]
@@ -194,14 +194,14 @@ viewLineStop lineStops currentTime =
             List.repeat (List.length lineStops) currentTime
     in
         div
-            [ class "lineStops" ]
+            [ class "lineStops row" ]
         <|
             List.map2 viewDepartures lineStops timeList
 
 
 viewDepartures : LineStop -> Maybe Time -> Html Msg
 viewDepartures lineStop currentTime =
-    div [ class "departures" ] <|
+    div [ class "departures col-sm-6" ] <|
         List.append
             [ h2 [] [ text lineStop.name ]
             ]
