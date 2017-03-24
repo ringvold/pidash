@@ -39,6 +39,7 @@ subscription model =
 type alias Model =
     { lineStops : List LineStop
     , currentTime : Maybe Time.Time
+    , url : String
     }
 
 
@@ -62,8 +63,11 @@ init =
             , LineStop "Grefsenveien nord" 3010443 [] 0
             ]
 
+        url =
+            "http://localhost:8080/"
+
         model =
-            Model lineStops Nothing
+            Model lineStops Nothing url
     in
         ( model
         , fetchDepartures model
@@ -89,7 +93,8 @@ update msg model =
             model ! []
 
         TimeRequested ->
-            model ! [ Task.perform TimeReceived Time.now ]
+            model
+                ! [ Task.perform TimeReceived Time.now ]
 
         TimeReceived time ->
             { model | currentTime = Just time } ! []
@@ -111,8 +116,10 @@ update msg model =
 fetchDepartures : Model -> Cmd Msg
 fetchDepartures model =
     Cmd.batch <|
-        List.append [ Task.perform TimeReceived Time.now ] <|
-            List.map getDeparture model.lineStops
+        List.append
+            [ Task.perform TimeReceived Time.now ]
+        <|
+            List.map (\stop -> getDeparture stop model.url) model.lineStops
 
 
 updateLineStop : List LineStop -> List VehicleArrivalTime -> List LineStop
@@ -194,16 +201,12 @@ viewLineStop lineStops currentTime =
 
 viewDepartures : LineStop -> Maybe Time -> Html Msg
 viewDepartures lineStop currentTime =
-    let
-        timeList =
-            List.repeat (List.length lineStop.departures) currentTime
-    in
-        div [ class "departures" ] <|
-            List.append
-                [ h2 [] [ text lineStop.name ]
-                ]
-            <|
-                List.map2 viewDeparture lineStop.departures timeList
+    div [ class "departures" ] <|
+        List.append
+            [ h2 [] [ text lineStop.name ]
+            ]
+        <|
+            List.map (\departure -> viewDeparture departure currentTime) lineStop.departures
 
 
 viewDeparture : VehicleArrivalTime -> Maybe Time -> Html Msg
@@ -247,11 +250,11 @@ departureName departure =
 -- HTTP
 
 
-getDeparture : LineStop -> Cmd Msg
-getDeparture stop =
+getDeparture : LineStop -> String -> Cmd Msg
+getDeparture stop baseUrl =
     let
         url =
-            "http://localhost:8080/" ++ toString stop.id
+            baseUrl ++ toString stop.id
     in
         Http.send
             DeparturesReceived
