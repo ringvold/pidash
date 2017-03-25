@@ -40,6 +40,7 @@ type alias Model =
     { lineStops : Dict Int LineStop
     , currentTime : Maybe Time.Time
     , url : String
+    , showForm : Bool
     }
 
 
@@ -68,7 +69,11 @@ init =
             "http://localhost:8081/"
 
         model =
-            Model lineStops Nothing url
+            { lineStops = lineStops
+            , currentTime = Nothing
+            , url = url
+            , showForm = False
+            }
     in
         ( model
         , fetchDepartures model
@@ -95,8 +100,7 @@ update msg model =
             model ! []
 
         TimeRequested ->
-            model
-                ! [ Task.perform TimeReceived Time.now ]
+            model ! [ Task.perform TimeReceived Time.now ]
 
         TimeReceived time ->
             { model | currentTime = Just time } ! []
@@ -112,19 +116,20 @@ update msg model =
             )
 
         DeparturesReceived (Err _) ->
-            ( model, Cmd.none )
+            model ! []
 
         NewLineStopClicked ->
-            model ! []
+            Debug.log "button clicked"
+                model
+                ! []
 
 
 fetchDepartures : Model -> Cmd Msg
 fetchDepartures model =
-    Cmd.batch <|
-        List.append
-            [ Task.perform TimeReceived Time.now ]
-        <|
-            List.map (\stop -> getDeparture stop model.url) (Dict.values model.lineStops)
+    Dict.values model.lineStops
+        |> List.map (\stop -> getDeparture stop model.url)
+        |> List.append [ Task.perform TimeReceived Time.now ]
+        |> Cmd.batch
 
 
 updateLineStop : Dict Int LineStop -> List VehicleArrivalTime -> Dict Int LineStop
@@ -154,6 +159,11 @@ updateLineStop lineStops departures =
                 lineStops
 
 
+showForm : Model -> Model
+showForm model =
+    { model | showForm = True }
+
+
 
 -- VIEW
 
@@ -162,7 +172,11 @@ view : Model -> Html Msg
 view model =
     div [ class "container-fluid" ]
         [ h1 [ onClick DeparturesRequested ] [ text "Avganger" ]
-        , button [ class "btn btn-primary" ] [ text "Legg til stopp" ]
+        , button [ onClick NewLineStopClicked, class "btn btn-primary" ] [ text "Legg til stopp" ]
+        , if model.showForm then
+            div [ class "form" ] [ h2 [] [ text "Form" ] ]
+          else
+            text ""
         , lazy2 viewLineStop (Dict.values model.lineStops) model.currentTime
         ]
 
@@ -173,20 +187,15 @@ viewLineStop lineStops currentTime =
         timeList =
             List.repeat (List.length lineStops) currentTime
     in
-        div
-            [ class "lineStops row" ]
-        <|
-            List.map2 viewDepartures lineStops timeList
+        List.map2 viewDepartures lineStops timeList
+            |> div [ class "lineStops row" ]
 
 
 viewDepartures : LineStop -> Maybe Time -> Html Msg
 viewDepartures lineStop currentTime =
-    div [ class "departures col-sm-6" ] <|
-        List.append
-            [ h2 [] [ text lineStop.name ]
-            ]
-        <|
-            List.map (\departure -> viewDeparture departure currentTime) lineStop.departures
+    List.map (\departure -> viewDeparture departure currentTime) lineStop.departures
+        |> List.append [ h2 [] [ text lineStop.name ] ]
+        |> div [ class "departures col-sm-6" ]
 
 
 viewDeparture : VehicleArrivalTime -> Maybe Time -> Html Msg
@@ -198,8 +207,9 @@ viewDeparture departure currentTime =
                     text ""
 
                 Just theTime ->
-                    text <|
-                        getTimeUntilArrival (Date.fromTime theTime) departure.expectedArrivalTime
+                    departure.expectedArrivalTime
+                        |> getTimeUntilArrival (Date.fromTime theTime)
+                        |> text
     in
         div
             [ class "departure" ]
