@@ -9,17 +9,22 @@ import (
 	"net/http"
 )
 
+// ArrivalData cointains the parsed data returned from a request to
+// Ruter's API.
+type ArrivalData struct {
+	MonitoringRef           int `json:"monitoringRef,string"`
+	MonitoredVehicleJourney MonitoredVehicleJourney
+}
+
 // sanntidDirection defines the direction of the vehicle. It is either,
 // 0 (undefined (?)), 1 or 2.
 type sanntidDirection int
 
 type sanntidMonitoredCall struct {
-	ExpectedArrivalTime   string `json:"expectedArrivalTime"`
-	DeparturePlatformName string `json:"departurePlatformName"`
-	DestinationDisplay    string `json:"destinationDisplay"`
+	ExpectedArrivalTime string `json:"expectedArrivalTime"`
 }
 
-type sanntidArrivalData struct {
+type MonitoredVehicleJourney struct {
 	DestinationName   string               `json:"destinationName"`
 	MonitoredCall     sanntidMonitoredCall `json:"monitoredCall"`
 	PublishedLineName string               `json:"publishedLineName"`
@@ -27,7 +32,8 @@ type sanntidArrivalData struct {
 	DirectionRef      sanntidDirection     `json:"directionRef,string"`
 }
 
-type customArrivalData struct {
+type smallerSanntidData struct {
+	LineId              int              `json:"lineId"`
 	DestinationName     string           `json:"destinationName"`
 	PublishedLineName   string           `json:"publishedLineName"`
 	VehicleMode         int              `json:"vehicleMode"`
@@ -35,14 +41,8 @@ type customArrivalData struct {
 	ExpectedArrivalTime string           `json:"expectedArrivalTime"`
 }
 
-// ArrivalData cointains the parsed data returned from a request to
-// Ruter's API.
-type departures struct {
-	MonitoredVehicleJourney sanntidArrivalData
-}
-
 // Get the arrival data for a specific location ID
-func GetArrivalData(locationID int) ([]customArrivalData, error) {
+func GetArrivalData(locationID int) ([]smallerSanntidData, error) {
 	data, err := requestArrivalData(arrivalDataUrl(locationID))
 	if err != nil {
 		return nil, err
@@ -54,18 +54,19 @@ func GetArrivalData(locationID int) ([]customArrivalData, error) {
 }
 
 // Transform ruter response to smaller respons
-func transformArrivalData(departures []departures) []customArrivalData {
-	arrivals := make([]customArrivalData, 0)
+func transformArrivalData(departures []ArrivalData) []smallerSanntidData {
+	arrivals := make([]smallerSanntidData, 0)
 
 	for _, d := range departures {
 		mvj := d.MonitoredVehicleJourney
 
-		s := customArrivalData{
+		s := smallerSanntidData{
 			DestinationName:     mvj.DestinationName,
 			PublishedLineName:   mvj.PublishedLineName,
 			VehicleMode:         mvj.VehicleMode,
 			DirectionRef:        mvj.DirectionRef,
 			ExpectedArrivalTime: mvj.MonitoredCall.ExpectedArrivalTime,
+			LineId:              d.MonitoringRef,
 		}
 
 		arrivals = append(arrivals, s)
@@ -80,6 +81,7 @@ func transformArrivalData(departures []departures) []customArrivalData {
 
 // Construct the arrival data URL
 func arrivalDataUrl(locationID int) string {
+	// TODO: Support spesifying direction
 	return fmt.Sprintf("http://reisapi.ruter.no/stopvisit/getdepartures/%d?", locationID)
 }
 
@@ -95,8 +97,8 @@ func requestArrivalData(url string) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
-func parseArrivalData(content []byte) []departures {
-	var data []departures
+func parseArrivalData(content []byte) []ArrivalData {
+	var data []ArrivalData
 
 	json.Unmarshal(content, &data)
 

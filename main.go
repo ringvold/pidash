@@ -33,5 +33,5 @@ func main() {
 	log.Println("Starting server. Watch http://localhost:8080")
 	r := mux.NewRouter()
 	r.HandleFunc("/{key}", handler)
-	http.ListenAndServe(":8080", r)
+	http.ListenAndServe(":8081", r)
 }
