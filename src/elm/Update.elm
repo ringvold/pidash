@@ -56,7 +56,7 @@ fetchDepartures model =
         |> Cmd.batch
 
 
-updateLineStop : Dict Int LineStop -> Response -> Dict Int LineStop
+updateLineStop : Dict Int LineStop -> Departures -> Dict Int LineStop
 updateLineStop lineStops departures =
     let
         lineId =
@@ -79,7 +79,7 @@ showForm model =
 -- Helper functions
 
 
-getLineId : Response -> Int
+getLineId : Departures -> Int
 getLineId departures =
     let
         departure : Maybe VehicleArrivalTime

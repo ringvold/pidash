@@ -9,8 +9,8 @@ import Date exposing (Date)
 type alias LineStop =
     { name : String
     , id : Int
-    , departures : List VehicleArrivalTime
-    , direction : Int
+    , departures : Departures
+    , direction : Direction
     }
 
 
@@ -18,11 +18,17 @@ type alias VehicleArrivalTime =
     { destinationName : String
     , publishedLineName : String
     , vehicleMode : Int
-    , directionRef : String
+    , directionRef : Direction
     , expectedArrivalTime : Date
     , lineId : Int
     }
 
 
-type alias Response =
+type Direction
+    = All
+    | A
+    | B
+
+
+type alias Departures =
     List VehicleArrivalTime

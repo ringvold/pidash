@@ -33,6 +33,24 @@ vehicleArrivalTime =
         |: (field "destinationName" string)
         |: (field "publishedLineName" string)
         |: (field "vehicleMode" int)
-        |: (field "directionRef" string)
+        |: (field "directionRef" string |> Json.Decode.andThen decodeDirection)
         |: (field "expectedArrivalTime" date)
         |: (field "lineId" int)
+
+
+decodeDirection : String -> Decoder Direction
+decodeDirection status =
+    succeed (departureDirection status)
+
+
+departureDirection : String -> Direction
+departureDirection direction =
+    case direction of
+        "1" ->
+            A
+
+        "2" ->
+            B
+
+        _ ->
+            All

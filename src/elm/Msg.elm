@@ -13,5 +13,5 @@ type Msg
     | TimeRequested
     | TimeReceived Time
     | DeparturesRequested
-    | DeparturesReceived (Result Http.Error Response)
+    | DeparturesReceived (Result Http.Error Departures)
     | NewLineStopClicked
