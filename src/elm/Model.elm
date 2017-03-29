@@ -14,7 +14,7 @@ type alias Model =
     , currentTime : Maybe Time.Time
     , url : String
     , showForm : Bool
-    , newLineStopForm : LineStop
+    , newLineStop : LineStop
     }
 
 
@@ -31,8 +31,8 @@ init =
         url =
             "http://localhost:8081/"
 
-        newLineStopForm : LineStop
-        newLineStopForm =
+        newLineStop : LineStop
+        newLineStop =
             LineStop "Grefsenveien sør" 3010443 [] A
 
         model =
@@ -40,7 +40,7 @@ init =
             , currentTime = Nothing
             , url = url
             , showForm = False
-            , newLineStopForm = newLineStopForm
+            , newLineStop = newLineStop
             }
     in
         model ! []

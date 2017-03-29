@@ -15,3 +15,7 @@ type Msg
     | DeparturesRequested
     | DeparturesReceived (Result Http.Error Departures)
     | NewLineStopClicked
+    | FormNameChanged String
+    | FormIdChanged String
+    | FormDirectionChanged String
+    | FormSubmitTriggered

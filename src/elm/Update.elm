@@ -43,9 +43,68 @@ update msg model =
             else
                 { model | showForm = True } ! []
 
+        FormNameChanged value ->
+            { model | newLineStop = (updateName model.newLineStop value) } ! []
+
+        FormIdChanged value ->
+            { model | newLineStop = (updateId model.newLineStop value) }
+                ! []
+
+        FormDirectionChanged value ->
+            { model | newLineStop = (updateDirection model.newLineStop value) } ! []
+
+        FormSubmitTriggered ->
+            addLineStop model
+
 
 
 -- Update functions
+
+
+addLineStop : Model -> ( Model, Cmd Msg )
+addLineStop model =
+    let
+        newModel =
+            { model | lineStops = Dict.insert model.newLineStop.id model.newLineStop model.lineStops }
+    in
+        ( newModel, fetchDepartures newModel )
+
+
+updateName : LineStop -> String -> LineStop
+updateName lineStop newName =
+    { lineStop | name = newName }
+
+
+updateId : LineStop -> String -> LineStop
+updateId lineStop newId =
+    { lineStop | id = convertId newId }
+
+
+updateDirection : LineStop -> String -> LineStop
+updateDirection lineStop newDirection =
+    { lineStop | direction = convertDirection newDirection }
+
+
+convertId : String -> Int
+convertId id =
+    Result.withDefault 0 (String.toInt id)
+
+
+
+-- This is done somewhere else of it should be reused:
+
+
+convertDirection : String -> Direction
+convertDirection directionString =
+    case directionString of
+        "1" ->
+            A
+
+        "2" ->
+            B
+
+        _ ->
+            All
 
 
 fetchDepartures : Model -> Cmd Msg
