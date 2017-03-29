@@ -54,11 +54,17 @@ update msg model =
             { model | newLineStop = (updateDirection model.newLineStop value) } ! []
 
         FormSubmitTriggered ->
-            addLineStop model
+            hideForm model
+                |> addLineStop
 
 
 
 -- Update functions
+
+
+hideForm : Model -> Model
+hideForm model =
+    { model | showForm = False }
 
 
 addLineStop : Model -> ( Model, Cmd Msg )
