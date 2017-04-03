@@ -23,7 +23,7 @@ init =
     let
         lineStops =
             Dict.fromList
-                [ ( 3012122, LineStop "Storo sør" 3012122 [] A )
+                [ ( 3012122, LineStop "Storo sør" 3012122 [] B )
                 , ( 3010443, LineStop "Grefsenveien nord" 3010443 [] A )
                 ]
 
