@@ -18,7 +18,7 @@ type alias VehicleArrivalTime =
     { destinationName : String
     , publishedLineName : String
     , vehicleMode : Int
-    , directionRef : Direction
+    , direction : Direction
     , expectedArrivalTime : Date
     , lineId : Int
     }

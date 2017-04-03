@@ -6,6 +6,7 @@ import Json.Decode.Extra exposing ((|:), date)
 import Json.Decode
 import Types exposing (..)
 import Msg exposing (Msg(..))
+import Helpers exposing (..)
 
 
 -- API/HTTP
@@ -40,17 +41,4 @@ vehicleArrivalTime =
 
 decodeDirection : String -> Decoder Direction
 decodeDirection status =
-    succeed (departureDirection status)
-
-
-departureDirection : String -> Direction
-departureDirection direction =
-    case direction of
-        "1" ->
-            A
-
-        "2" ->
-            B
-
-        _ ->
-            All
+    succeed (convertDirection status)

@@ -7,6 +7,7 @@ import Types exposing (..)
 import Model exposing (..)
 import Msg exposing (Msg(..))
 import Api exposing (getDeparture)
+import Helpers exposing (..)
 
 
 -- UPDATE
@@ -44,14 +45,14 @@ update msg model =
                 { model | showForm = True } ! []
 
         FormNameChanged value ->
-            { model | newLineStop = (updateName model.newLineStop value) } ! []
+            { model | newLineStop = (updateNewName model.newLineStop value) } ! []
 
         FormIdChanged value ->
-            { model | newLineStop = (updateId model.newLineStop value) }
+            { model | newLineStop = (updateNewId model.newLineStop value) }
                 ! []
 
         FormDirectionChanged value ->
-            { model | newLineStop = (updateDirection model.newLineStop value) } ! []
+            { model | newLineStop = (updateNewDirection model.newLineStop value) } ! []
 
         FormSubmitTriggered ->
             hideForm model
@@ -76,41 +77,24 @@ addLineStop model =
         ( newModel, fetchDepartures newModel )
 
 
-updateName : LineStop -> String -> LineStop
-updateName lineStop newName =
+updateNewName : LineStop -> String -> LineStop
+updateNewName lineStop newName =
     { lineStop | name = newName }
 
 
-updateId : LineStop -> String -> LineStop
-updateId lineStop newId =
+updateNewId : LineStop -> String -> LineStop
+updateNewId lineStop newId =
     { lineStop | id = convertId newId }
 
 
-updateDirection : LineStop -> String -> LineStop
-updateDirection lineStop newDirection =
+updateNewDirection : LineStop -> String -> LineStop
+updateNewDirection lineStop newDirection =
     { lineStop | direction = convertDirection newDirection }
 
 
 convertId : String -> Int
 convertId id =
     Result.withDefault 0 (String.toInt id)
-
-
-
--- This is done somewhere else of it should be reused:
-
-
-convertDirection : String -> Direction
-convertDirection directionString =
-    case directionString of
-        "1" ->
-            A
-
-        "2" ->
-            B
-
-        _ ->
-            All
 
 
 fetchDepartures : Model -> Cmd Msg
@@ -129,7 +113,9 @@ updateLineStop lineStops departures =
     in
         case Dict.get lineId lineStops of
             Just lineStop ->
-                Dict.insert lineId ({ lineStop | departures = departures }) lineStops
+                Dict.insert lineId
+                    ({ lineStop | departures = (getLineStopByDirection lineStop.direction departures) })
+                    lineStops
 
             Nothing ->
                 lineStops
@@ -142,6 +128,33 @@ showForm model =
 
 
 -- Helper functions
+
+
+getLineStopByDirection : Direction -> Departures -> Departures
+getLineStopByDirection direction departures =
+    List.filterMap (hasDirection direction) departures
+
+
+hasDirection : Direction -> VehicleArrivalTime -> Maybe VehicleArrivalTime
+hasDirection direction departure =
+    let
+        departureDirection =
+            directionToComparable departure.direction
+
+        lineStopDirection =
+            directionToComparable direction
+
+        allDirections =
+            directionToComparable All
+    in
+        if lineStopDirection == allDirections then
+            Just
+                departure
+        else if departureDirection == lineStopDirection then
+            Just
+                departure
+        else
+            Nothing
 
 
 getLineId : Departures -> Int
