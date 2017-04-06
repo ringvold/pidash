@@ -1,5 +1,11 @@
-elm-stuff/
-node_modules/
-tmp/
-dist/
-.DS_Store
+
+frontend/elm-stuff/
+frontend/node_modules/
+frontend/tmp/
+frontend/dist/
+frontend/.DS_Store
+
+main
+ruter-cache
+vendor
+main
