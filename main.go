@@ -7,6 +7,9 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/rakyll/statik/fs"
+
+	_ "./statik" // TODO: Replace with the absolute import path
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -30,8 +33,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	log.Println("Starting server. Watch http://localhost:8080")
-	r := mux.NewRouter()
-	r.HandleFunc("/{key}", handler)
-	http.ListenAndServe(":8081", r)
+	log.Println("Starting server. Watch http://localhost:8081")
+
+	statikFS, _ := fs.New()
+	router := mux.NewRouter()
+
+	router.HandleFunc("/ruter/{key}", handler)
+	router.Handle("/{name:.*}", http.FileServer(statikFS))
+
+	http.ListenAndServe(":8081", router)
 }

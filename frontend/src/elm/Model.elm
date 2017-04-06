@@ -28,7 +28,7 @@ init =
                 ]
 
         url =
-            "http://localhost:8081/"
+            "http://localhost:8081/ruter/"
 
         newLineStop : LineStop
         newLineStop =
