@@ -1,9 +1,11 @@
 module Model exposing (Model, init)
 
 import Time exposing (Time, second)
+import Task exposing (..)
 import Dict exposing (Dict)
 import Types exposing (..)
 import Msg exposing (..)
+import Api exposing (getDeparture)
 
 
 -- MODEL
@@ -42,4 +44,10 @@ init =
             , newLineStop = newLineStop
             }
     in
-        model ! []
+        -- Not ideal inlining Cmds but others ways make circular dependencies with this file
+        ( model
+        , Dict.values model.lineStops
+            |> List.map (\stop -> getDeparture stop model.url)
+            |> List.append [ Task.perform TimeReceived Time.now ]
+            |> Cmd.batch
+        )
