@@ -4,6 +4,8 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Msg exposing (Msg(..))
+import Helpers exposing (directionToComparable)
+import Types exposing (Direction(..))
 
 
 -- NEW LINESTOP VIEW
@@ -24,7 +26,16 @@ view =
             ]
         , div [ class "form-group" ]
             [ label [ for "direction" ] [ text "Direction" ]
-            , input [ onInput FormDirectionChanged, name "direction", class "form-control" ] []
+            , select [ onInput FormDirectionChanged, name "direction", class "form-control" ] <|
+                options
             ]
         , button [ class "btn" ] [ text "Lagre" ]
         ]
+
+
+options : List (Html Msg)
+options =
+    [ option [ value (directionToComparable A) ] [ text (directionToComparable A) ]
+    , option [ value (directionToComparable B) ] [ text (directionToComparable B) ]
+    , option [ value (directionToComparable All) ] [ text (directionToComparable All) ]
+    ]

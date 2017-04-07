@@ -89,7 +89,7 @@ updateNewId lineStop newId =
 
 updateNewDirection : LineStop -> String -> LineStop
 updateNewDirection lineStop newDirection =
-    { lineStop | direction = convertDirection newDirection }
+    { lineStop | direction = stringToDirection newDirection }
 
 
 convertId : String -> Int

@@ -42,3 +42,16 @@ vehicleArrivalTime =
 decodeDirection : String -> Decoder Direction
 decodeDirection status =
     succeed (convertDirection status)
+
+
+convertDirection : String -> Direction
+convertDirection directionString =
+    case directionString of
+        "1" ->
+            A
+
+        "2" ->
+            B
+
+        _ ->
+            All

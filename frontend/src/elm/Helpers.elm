@@ -16,13 +16,13 @@ directionToComparable direction =
             "ALL"
 
 
-convertDirection : String -> Direction
-convertDirection directionString =
+stringToDirection : String -> Direction
+stringToDirection directionString =
     case directionString of
-        "1" ->
+        "A" ->
             A
 
-        "2" ->
+        "B" ->
             B
 
         _ ->
