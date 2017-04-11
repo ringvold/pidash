@@ -2,14 +2,16 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 
-	_ "./statik" // TODO: Replace with the absolute import path
+	_ "github.com/ringvold/pi-dash/statik"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -33,7 +35,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	log.Println("Starting server. Watch http://localhost:8081")
+
+	port := os.Getenv("PORT")
+	log.Printf("Starting server. Watch http://localhost:%v", port)
 
 	statikFS, _ := fs.New()
 	router := mux.NewRouter()
@@ -41,5 +45,5 @@ func main() {
 	router.HandleFunc("/ruter/{key}", handler)
 	router.Handle("/{name:.*}", http.FileServer(statikFS))
 
-	http.ListenAndServe(":8081", router)
+	http.ListenAndServe(fmt.Sprintf(":%v", port), router)
 }

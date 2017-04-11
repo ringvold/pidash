@@ -6,6 +6,5 @@ frontend/dist/
 frontend/.DS_Store
 
 main
-ruter-cache
 vendor
-main
+pi-dash
