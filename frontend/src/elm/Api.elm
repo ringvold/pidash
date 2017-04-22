@@ -4,9 +4,9 @@ import Http
 import Json.Decode as Json exposing (Decoder, decodeValue, succeed, string, int, field)
 import Json.Decode.Extra exposing ((|:), date)
 import Json.Decode
+import RemoteData exposing (WebData, RemoteData(..))
 import Types exposing (..)
 import Msg exposing (Msg(..))
-import Helpers exposing (..)
 
 
 -- API/HTTP
@@ -18,9 +18,9 @@ getDeparture stop baseUrl =
         url =
             baseUrl ++ toString stop.id
     in
-        Http.send
-            DeparturesReceived
-            (Http.get url decodeResponse)
+        Http.get url decodeResponse
+            |> RemoteData.sendRequest
+            |> Cmd.map (DeparturesReceived stop.id stop.direction)
 
 
 decodeResponse : Json.Decoder (List VehicleArrivalTime)

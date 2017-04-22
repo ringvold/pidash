@@ -2,7 +2,7 @@ module Model exposing (Model, init)
 
 import Time exposing (Time, second)
 import Task exposing (..)
-import Dict exposing (Dict)
+import RemoteData exposing (WebData, RemoteData(..))
 import Types exposing (..)
 import Msg exposing (..)
 import Api exposing (getDeparture)
@@ -12,7 +12,7 @@ import Api exposing (getDeparture)
 
 
 type alias Model =
-    { lineStops : Dict Int LineStop
+    { lineStops : List LineStop
     , currentTime : Maybe Time.Time
     , url : String
     , showForm : Bool
@@ -24,17 +24,17 @@ init : ( Model, Cmd Msg )
 init =
     let
         lineStops =
-            Dict.fromList
-                [ ( 3012122, LineStop "Storo sør" 3012122 [] A )
-                , ( 3010443, LineStop "Grefsenveien nord" 3010443 [] All )
-                ]
+            [ LineStop "Storo sør" 3012122 NotAsked A
+            , LineStop "Grefsenveien nord" 3010443 NotAsked B
+            , LineStop "Grefsenveien sør" 3010443 NotAsked A
+            ]
 
         url =
             "http://localhost:8081/ruter/"
 
         newLineStop : LineStop
         newLineStop =
-            LineStop "Grefsenveien sør" 3010443 [] A
+            LineStop "Grefsenveien sør" 3010443 Loading A
 
         model =
             { lineStops = lineStops
@@ -46,7 +46,7 @@ init =
     in
         -- Not ideal inlining Cmds but others ways make circular dependencies with this file
         ( model
-        , Dict.values model.lineStops
+        , model.lineStops
             |> List.map (\stop -> getDeparture stop model.url)
             |> List.append [ Task.perform TimeReceived Time.now ]
             |> Cmd.batch

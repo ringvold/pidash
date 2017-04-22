@@ -1,6 +1,7 @@
 module Types exposing (..)
 
 import Date exposing (Date)
+import RemoteData exposing (WebData)
 
 
 -- TYPES
@@ -9,7 +10,7 @@ import Date exposing (Date)
 type alias LineStop =
     { name : String
     , id : Int
-    , departures : Departures
+    , departures : WebData Departures
     , direction : Direction
     }
 

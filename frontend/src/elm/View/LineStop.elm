@@ -2,10 +2,12 @@ module View.LineStop exposing (view)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Date exposing (..)
+import Date exposing (Date, fromTime)
 import Date.Extra as Date exposing (Interval(..))
+import RemoteData exposing (RemoteData(..))
 import Time exposing (Time, second)
 import Types exposing (..)
+import Helpers exposing (directionToComparable)
 import Msg exposing (..)
 
 
@@ -14,19 +16,43 @@ import Msg exposing (..)
 
 view : List LineStop -> Maybe Time -> Html Msg
 view lineStops currentTime =
-    let
-        timeList =
-            List.repeat (List.length lineStops) currentTime
-    in
-        List.map2 viewDepartures lineStops timeList
-            |> div [ class "lineStops row" ]
+    List.map (\ls -> viewDepartures ls currentTime) lineStops
+        |> div [ class "lineStops row" ]
 
 
 viewDepartures : LineStop -> Maybe Time -> Html Msg
 viewDepartures lineStop currentTime =
-    List.map (\departure -> viewDeparture departure currentTime) lineStop.departures
-        |> List.append [ h2 [] [ text lineStop.name ] ]
-        |> div [ class "departures col-sm-6" ]
+    case lineStop.departures of
+        NotAsked ->
+            div [ class "departures col-sm-6" ]
+                [ viewMessage "Nothing here yet. Just an open road." "glyphicon-road" ]
+
+        Loading ->
+            div [ class "departures col-sm-6" ] [ viewMessage "Loading" "glyphicon-refresh spinning" ]
+
+        Failure err ->
+            div [ class "departures col-sm-6" ] [ viewMessage ("Error: " ++ toString err) "glyphicon-exclamation-sign" ]
+
+        Success departures ->
+            if List.isEmpty departures then
+                div [ class "departures col-sm-6" ]
+                    [ h2 [] [ text lineStop.name ]
+                    , text "Ingen avganger akkurat nå"
+                    ]
+            else
+                departures
+                    |> getDeparturesByDirection lineStop.direction
+                    |> List.map (\departure -> viewDeparture departure currentTime)
+                    |> List.append [ h2 [] [ text lineStop.name ] ]
+                    |> div [ class "departures col-sm-6" ]
+
+
+viewMessage : String -> String -> Html Msg
+viewMessage message icon =
+    div [ class "message" ]
+        [ h2 [ class "text-center loading-text" ] [ text message ]
+        , div [ class "text-center loading-icon" ] [ span [ class <| "glyphicon " ++ icon ] [] ]
+        ]
 
 
 viewDeparture : VehicleArrivalTime -> Maybe Time -> Html Msg
@@ -65,3 +91,24 @@ getTimeUntilArrival currentTime arrivalTime =
 departureName : VehicleArrivalTime -> String
 departureName departure =
     departure.publishedLineName ++ " " ++ departure.destinationName
+
+
+getDeparturesByDirection : Direction -> Departures -> Departures
+getDeparturesByDirection direction departures =
+    departures
+        |> List.filter (hasDirection direction)
+
+
+hasDirection : Direction -> VehicleArrivalTime -> Bool
+hasDirection direction departure =
+    let
+        departureDirection =
+            directionToComparable departure.direction
+
+        lineStopDirection =
+            directionToComparable direction
+
+        allDirections =
+            directionToComparable All
+    in
+        lineStopDirection == allDirections || departureDirection == lineStopDirection

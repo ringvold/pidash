@@ -1,7 +1,7 @@
 module Msg exposing (Msg(..))
 
 import Time exposing (Time, second)
-import Http
+import RemoteData exposing (WebData)
 import Types exposing (..)
 
 
@@ -13,7 +13,7 @@ type Msg
     | TimeRequested
     | TimeReceived Time
     | DeparturesRequested
-    | DeparturesReceived (Result Http.Error Departures)
+    | DeparturesReceived Int Direction (WebData Departures)
     | NewLineStopClicked
     | FormNameChanged String
     | FormIdChanged String

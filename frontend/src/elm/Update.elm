@@ -1,8 +1,8 @@
 module Update exposing (update)
 
-import Dict exposing (Dict)
 import Task exposing (perform)
 import Time exposing (Time, second)
+import RemoteData exposing (WebData, RemoteData(..), succeed)
 import Types exposing (..)
 import Model exposing (..)
 import Msg exposing (Msg(..))
@@ -30,13 +30,10 @@ update msg model =
             , fetchDepartures model
             )
 
-        DeparturesReceived (Ok departures) ->
-            ( { model | lineStops = updateLineStop model.lineStops departures }
+        DeparturesReceived id direction departures ->
+            ( { model | lineStops = updateLineStop id direction model.lineStops departures }
             , Cmd.none
             )
-
-        DeparturesReceived (Err _) ->
-            model ! []
 
         NewLineStopClicked ->
             if model.showForm then
@@ -72,7 +69,7 @@ addLineStop : Model -> ( Model, Cmd Msg )
 addLineStop model =
     let
         newModel =
-            { model | lineStops = Dict.insert model.newLineStop.id model.newLineStop model.lineStops }
+            { model | lineStops = model.newLineStop :: model.lineStops }
     in
         ( newModel, fetchDepartures newModel )
 
@@ -99,26 +96,35 @@ convertId id =
 
 fetchDepartures : Model -> Cmd Msg
 fetchDepartures model =
-    Dict.values model.lineStops
+    model.lineStops
         |> List.map (\stop -> getDeparture stop model.url)
         |> List.append [ Task.perform TimeReceived Time.now ]
         |> Cmd.batch
 
 
-updateLineStop : Dict Int LineStop -> Departures -> Dict Int LineStop
-updateLineStop lineStops departures =
-    let
-        lineId =
-            getLineId departures
-    in
-        case Dict.get lineId lineStops of
-            Just lineStop ->
-                Dict.insert lineId
-                    ({ lineStop | departures = (getLineStopByDirection lineStop.direction departures) })
-                    lineStops
+updateLineStop : Int -> Direction -> List LineStop -> WebData Departures -> List LineStop
+updateLineStop id direction lineStops departures =
+    List.map (updateStop id departures direction) lineStops
 
-            Nothing ->
-                lineStops
+
+updateStop : Int -> WebData Departures -> Direction -> LineStop -> LineStop
+updateStop id departures direction lineStop =
+    let
+        departureDirection =
+            directionToComparable direction
+
+        lineStopDirection =
+            directionToComparable lineStop.direction
+
+        allDirections =
+            directionToComparable All
+    in
+        if lineStop.id == id && lineStopDirection == departureDirection then
+            { lineStop | departures = departures }
+        else if lineStop.id == id && lineStopDirection == allDirections then
+            { lineStop | departures = departures }
+        else
+            lineStop
 
 
 showForm : Model -> Model
@@ -128,11 +134,6 @@ showForm model =
 
 
 -- Helper functions
-
-
-getLineStopByDirection : Direction -> Departures -> Departures
-getLineStopByDirection direction departures =
-    List.filterMap (hasDirection direction) departures
 
 
 hasDirection : Direction -> VehicleArrivalTime -> Maybe VehicleArrivalTime
@@ -157,16 +158,16 @@ hasDirection direction departure =
             Nothing
 
 
-getLineId : Departures -> Int
+getLineId : WebData Departures -> Int
 getLineId departures =
-    let
-        departure : Maybe VehicleArrivalTime
-        departure =
-            (List.head departures)
-    in
-        case departure of
-            Just departure ->
-                departure.lineId
+    case departures of
+        Success deps ->
+            case (List.head deps) of
+                Just departure ->
+                    departure.lineId
 
-            Nothing ->
-                -1
+                Nothing ->
+                    -1
+
+        _ ->
+            -1
