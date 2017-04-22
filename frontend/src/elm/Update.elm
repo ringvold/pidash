@@ -26,7 +26,7 @@ update msg model =
             { model | currentTime = Just time } ! []
 
         DeparturesRequested ->
-            ( model
+            ( { model | lineStops = setLoading model }
             , fetchDepartures model
             )
 
@@ -92,6 +92,12 @@ updateNewDirection lineStop newDirection =
 convertId : String -> Int
 convertId id =
     Result.withDefault 0 (String.toInt id)
+
+
+setLoading : Model -> List LineStop
+setLoading model =
+    model.lineStops
+        |> List.map (\lineStop -> { lineStop | departures = Loading })
 
 
 fetchDepartures : Model -> Cmd Msg

@@ -22,5 +22,5 @@ view model =
             NewLineStop.view
           else
             text ""
-        , lazy2 LineStop.view (model.lineStops) model.currentTime
+        , lazy2 LineStop.view model.lineStops model.currentTime
         ]

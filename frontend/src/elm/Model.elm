@@ -24,9 +24,9 @@ init : ( Model, Cmd Msg )
 init =
     let
         lineStops =
-            [ LineStop "Storo sør" 3012122 NotAsked B
-            , LineStop "Grefsenveien nord" 3010443 NotAsked B
-            , LineStop "Grefsenveien sør" 3010443 NotAsked A
+            [ LineStop "Storo sør" 3012122 Loading B
+            , LineStop "Grefsenveien nord" 3010443 Loading B
+            , LineStop "Grefsenveien sør" 3010443 Loading A
             ]
 
         url =
