@@ -4,12 +4,16 @@ $icon-font-path: '~bootstrap-sass/assets/fonts/bootstrap/';
 
 // can add Boostrap overrides, additional Sass/CSS below...
 
+.departures {
+  text-align: center;
+}
+
 .loading-icon {
-  font-size: 6em;
+  font-size: 4em;
 }
 
 .loading-text {
-  font-size: 2em;
+  font-size: 1em;
 }
 
 .glyphicon.spinning {

@@ -24,18 +24,26 @@ viewDepartures : LineStop -> Maybe Time -> Html Msg
 viewDepartures lineStop currentTime =
     case lineStop.departures of
         NotAsked ->
-            div [ class "departures col-sm-6" ]
-                [ viewMessage "Nothing here yet. Just an open road." "glyphicon-road" ]
+            div [ class "departures col-sm-4" ]
+                [ h2 [] [ text lineStop.name ]
+                , viewMessage "Nothing here yet. Just an open road." "glyphicon-road"
+                ]
 
         Loading ->
-            div [ class "departures col-sm-6" ] [ viewMessage "Loading" "glyphicon-refresh spinning" ]
+            div [ class "departures col-sm-4" ]
+                [ h2 [] [ text lineStop.name ]
+                , viewMessage "Loading" "glyphicon-refresh spinning"
+                ]
 
         Failure err ->
-            div [ class "departures col-sm-6" ] [ viewMessage ("Error: " ++ toString err) "glyphicon-exclamation-sign" ]
+            div [ class "departures col-sm-4" ]
+                [ h2 [] [ text lineStop.name ]
+                , viewMessage ("Error: " ++ toString err) "glyphicon-exclamation-sign"
+                ]
 
         Success departures ->
             if List.isEmpty departures then
-                div [ class "departures col-sm-6" ]
+                div [ class "departures col-sm-4" ]
                     [ h2 [] [ text lineStop.name ]
                     , text "Ingen avganger akkurat nå"
                     ]
@@ -44,14 +52,14 @@ viewDepartures lineStop currentTime =
                     |> getDeparturesByDirection lineStop.direction
                     |> List.map (\departure -> viewDeparture departure currentTime)
                     |> List.append [ h2 [] [ text lineStop.name ] ]
-                    |> div [ class "departures col-sm-6" ]
+                    |> div [ class "departures col-sm-4" ]
 
 
 viewMessage : String -> String -> Html Msg
 viewMessage message icon =
     div [ class "message" ]
-        [ h2 [ class "text-center loading-text" ] [ text message ]
-        , div [ class "text-center loading-icon" ] [ span [ class <| "glyphicon " ++ icon ] [] ]
+        [ div [ class "text-center loading-icon" ] [ span [ class <| "glyphicon " ++ icon ] [] ]
+        , p [ class "text-center loading-text" ] [ text message ]
         ]
 
 
@@ -71,8 +79,8 @@ viewDeparture departure currentTime =
         div
             [ class "departure" ]
             [ h3 []
-                [ text <| departureName departure ]
-            , div [] [ timeUntilArrival ]
+                [ timeUntilArrival ]
+            , div [] [ text <| departureName departure ]
             ]
 
 
