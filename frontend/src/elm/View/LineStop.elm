@@ -119,4 +119,4 @@ hasDirection direction departure =
         allDirections =
             directionToComparable All
     in
-        lineStopDirection == allDirections || departureDirection == lineStopDirection
+        departureDirection == allDirections || departureDirection == lineStopDirection

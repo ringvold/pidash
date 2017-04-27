@@ -11,4 +11,4 @@ import Msg exposing (Msg(..))
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Time.every (10 * Time.second) (\_ -> DeparturesRequested) ]
+        [ Time.every (30 * Time.second) (\_ -> DeparturesRequested) ]

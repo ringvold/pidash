@@ -44,7 +44,6 @@ init =
             , newLineStop = newLineStop
             }
     in
-        -- Not ideal inlining Cmds but others ways make circular dependencies with this file
         ( model
         , model.lineStops
             |> List.map (\stop -> getDeparture stop model.url)
