@@ -14,7 +14,7 @@ import (
 	_ "github.com/ringvold/pi-dash/statik"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func ruterHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	key, err := strconv.Atoi(vars["key"])
@@ -34,17 +34,24 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	w.Write(dataJson)
 }
 
-func main() {
-
+func viperSetup() {
 	viper.SetConfigName("pi-dash")
 	viper.AddConfigPath("$HOME")
 	viper.AddConfigPath(".")
 	viper.AutomaticEnv()
 	viper.SetEnvPrefix("pi_dash")
+
+	viper.SetDefault("port", "8081")
+
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {             // Handle errors reading the config file
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+		log.Printf("Error reading config file: %s \n", err)
 	}
+}
+
+func main() {
+
+	viperSetup()
 
 	port := viper.Get("port")
 	log.Printf("Starting server. Watch http://localhost:%v", port)
@@ -52,7 +59,7 @@ func main() {
 	statikFS, _ := fs.New()
 	router := mux.NewRouter()
 
-	router.HandleFunc("/ruter/{key}", handler)
+	router.HandleFunc("/ruter/{key}", ruterHandler)
 	router.Handle("/{name:.*}", http.FileServer(statikFS))
 
 	http.ListenAndServe(fmt.Sprintf(":%v", port), router)
