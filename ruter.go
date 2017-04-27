@@ -72,8 +72,8 @@ func transformArrivalData(departures []ArrivalData) []smallerSanntidData {
 		arrivals = append(arrivals, s)
 	}
 
-	if len(arrivals) > 3 {
-		return arrivals[:3]
+	if len(arrivals) > 6 {
+		return arrivals[:6]
 	}
 
 	return arrivals
