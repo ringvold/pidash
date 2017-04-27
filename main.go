@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
+	"github.com/spf13/viper"
 
 	_ "github.com/ringvold/pi-dash/statik"
 )
@@ -36,7 +36,17 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
-	port := os.Getenv("PORT")
+	viper.SetConfigName("pi-dash")
+	viper.AddConfigPath("$HOME")
+	viper.AddConfigPath(".")
+	viper.AutomaticEnv()
+	viper.SetEnvPrefix("pi_dash")
+	err := viper.ReadInConfig() // Find and read the config file
+	if err != nil {             // Handle errors reading the config file
+		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+	}
+
+	port := viper.Get("port")
 	log.Printf("Starting server. Watch http://localhost:%v", port)
 
 	statikFS, _ := fs.New()

@@ -4,3 +4,4 @@ import:
   version: ^1.3.0
 - package: github.com/rakyll/statik
   version: ~0.1.0
+- package: github.com/spf13/viper
