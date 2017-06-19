@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/markbates/refresh/refresh/web"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/viper"
 
@@ -62,5 +63,5 @@ func main() {
 	router.HandleFunc("/ruter/{key}", ruterHandler)
 	router.Handle("/{name:.*}", http.FileServer(statikFS))
 
-	http.ListenAndServe(fmt.Sprintf(":%v", port), router)
+	http.ListenAndServe(fmt.Sprintf(":%v", port), web.ErrorChecker(router))
 }

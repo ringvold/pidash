@@ -10,6 +10,7 @@ import Types exposing (..)
 
 type Msg
     = NoOp
+    | HeaderTriggered
     | TimeRequested
     | TimeReceived Time
     | DeparturesRequested
@@ -19,3 +20,5 @@ type Msg
     | FormIdChanged String
     | FormDirectionChanged String
     | FormSubmitTriggered
+    | ActivePeriodStartReceived Time
+    | ActivePeriodDeactivationTriggered

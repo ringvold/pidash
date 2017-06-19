@@ -1,4 +1,4 @@
-module Model exposing (Model, init)
+module Model exposing (Model, ActivePeriodStatus(..), init)
 
 import Time exposing (Time, second)
 import Task exposing (..)
@@ -17,7 +17,13 @@ type alias Model =
     , url : String
     , showForm : Bool
     , newLineStop : LineStop
+    , activePeriod : ActivePeriodStatus
     }
+
+
+type ActivePeriodStatus
+    = Inactive
+    | Active Time
 
 
 init : ( Model, Cmd Msg )
@@ -42,11 +48,13 @@ init =
             , url = url
             , showForm = False
             , newLineStop = newLineStop
+            , activePeriod = Inactive
             }
     in
         ( model
         , model.lineStops
             |> List.map (\stop -> getDeparture stop model.url)
             |> List.append [ Task.perform TimeReceived Time.now ]
+            |> List.append [ Task.perform ActivePeriodStartReceived Time.now ]
             |> Cmd.batch
         )

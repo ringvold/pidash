@@ -19,6 +19,10 @@ update msg model =
         NoOp ->
             model ! []
 
+        HeaderTriggered ->
+            { model | lineStops = setLoading model }
+                ! [ fetchDepartures model, Task.perform ActivePeriodStartReceived Time.now ]
+
         TimeRequested ->
             model ! [ Task.perform TimeReceived Time.now ]
 
@@ -54,6 +58,14 @@ update msg model =
         FormSubmitTriggered ->
             hideForm model
                 |> addLineStop
+
+        ActivePeriodStartReceived time ->
+            Debug.log "løl"
+                { model | activePeriod = Active time }
+                ! []
+
+        ActivePeriodDeactivationTriggered ->
+            { model | activePeriod = Inactive } ! []
 
 
 
