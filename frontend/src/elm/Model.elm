@@ -30,7 +30,7 @@ init : ( Model, Cmd Msg )
 init =
     let
         lineStops =
-            [ LineStop "Storo sør" 3012122 Loading B
+            [ LineStop "Storo sør" 3012122 Loading A
             , LineStop "Grefsenveien nord" 3010443 Loading A
             , LineStop "Grefsenveien sør" 3010443 Loading B
             ]

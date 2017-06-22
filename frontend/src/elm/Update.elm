@@ -60,8 +60,7 @@ update msg model =
                 |> addLineStop
 
         ActivePeriodStartReceived time ->
-            Debug.log "løl"
-                { model | activePeriod = Active time }
+            { model | activePeriod = Active time }
                 ! []
 
         ActivePeriodDeactivationTriggered ->

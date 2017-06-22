@@ -105,6 +105,7 @@ getDeparturesByDirection : Direction -> Departures -> Departures
 getDeparturesByDirection direction departures =
     departures
         |> List.filter (hasDirection direction)
+        |> List.take 3
 
 
 hasDirection : Direction -> VehicleArrivalTime -> Bool
