@@ -20,7 +20,7 @@ checkIfActivePeriod model time =
             NoOp
 
         Active startTime ->
-            if startTime + (5 + Time.minute) > time then
+            if startTime + (5 * Time.minute) > time then
                 DeparturesRequested
             else
                 ActivePeriodDeactivationTriggered
