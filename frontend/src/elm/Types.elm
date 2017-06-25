@@ -26,9 +26,9 @@ type alias VehicleArrivalTime =
 
 
 type Direction
-    = All
-    | A
+    = A
     | B
+    | Unknown
 
 
 type alias Departures =

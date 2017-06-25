@@ -37,5 +37,4 @@ options : List (Html Msg)
 options =
     [ option [ value (directionToComparable A) ] [ text (directionToComparable A) ]
     , option [ value (directionToComparable B) ] [ text (directionToComparable B) ]
-    , option [ value (directionToComparable All) ] [ text (directionToComparable All) ]
     ]

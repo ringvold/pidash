@@ -134,7 +134,7 @@ updateStop id departures direction lineStop =
             directionToComparable lineStop.direction
 
         allDirections =
-            directionToComparable All
+            directionToComparable Unknown
     in
         if lineStop.id == id && lineStopDirection == departureDirection then
             { lineStop | departures = departures }

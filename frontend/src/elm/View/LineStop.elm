@@ -117,7 +117,7 @@ hasDirection direction departure =
         lineStopDirection =
             directionToComparable direction
 
-        allDirections =
-            directionToComparable All
+        unknownDirections =
+            directionToComparable Unknown
     in
-        departureDirection == allDirections || departureDirection == lineStopDirection
+        departureDirection == unknownDirections || departureDirection == lineStopDirection

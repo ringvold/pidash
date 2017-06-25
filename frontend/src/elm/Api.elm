@@ -54,4 +54,4 @@ convertDirection directionString =
             B
 
         _ ->
-            All
+            Unknown

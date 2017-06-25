@@ -13,7 +13,7 @@ directionToComparable direction =
             "B"
 
         _ ->
-            "ALL"
+            "Unknown"
 
 
 stringToDirection : String -> Direction
@@ -26,4 +26,4 @@ stringToDirection directionString =
             B
 
         _ ->
-            All
+            Unknown
