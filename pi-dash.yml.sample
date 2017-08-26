@@ -1,6 +1,6 @@
 lines:
   - name: 'Storo sør'
-    id:  3012122
+    id: 3012122
     direction: up
   - name: 'Grefsenveien nord'
     id: 3010443
