@@ -10,8 +10,8 @@ import RemoteData exposing (WebData)
 type alias LineStop =
     { name : String
     , id : Int
-    , departures : WebData Departures
     , direction : Direction
+    , departures : WebData Departures
     }
 
 

@@ -6,6 +6,7 @@ import Html.Events exposing (..)
 import Html.Lazy exposing (lazy2)
 import Date.Extra as DE
 import Date
+import RemoteData
 import View.NewLineStop as NewLineStop
 import Msg exposing (..)
 import Model exposing (Model, ActivePeriodStatus(..), init)
@@ -28,7 +29,12 @@ view model =
             NewLineStop.view
           else
             text ""
-        , lazy2 LineStop.view model.lineStops model.currentTime
+        , case model.lineStops of
+            RemoteData.Success stops ->
+                lazy2 LineStop.view stops model.currentTime
+
+            _ ->
+                div [] [ text "Ingen stop" ]
         ]
 
 

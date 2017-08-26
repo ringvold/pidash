@@ -20,7 +20,7 @@ update msg model =
             model ! []
 
         HeaderTriggered ->
-            { model | lineStops = setLoading model }
+            { model | lineStops = setLoading model |> Success }
                 ! [ fetchDepartures model, Task.perform ActivePeriodStartReceived Time.now ]
 
         TimeRequested ->
@@ -30,14 +30,19 @@ update msg model =
             { model | currentTime = Just time } ! []
 
         DeparturesRequested ->
-            ( { model | lineStops = setLoading model }
+            ( { model | lineStops = setLoading model |> Success }
             , fetchDepartures model
             )
 
         DeparturesReceived id direction departures ->
-            ( { model | lineStops = updateLineStop id direction model.lineStops departures }
-            , Cmd.none
-            )
+            case model.lineStops of
+                RemoteData.Success stops ->
+                    ( { model | lineStops = Success (updateLineStop id direction stops departures) }
+                    , Cmd.none
+                    )
+
+                _ ->
+                    model ! []
 
         NewLineStopClicked ->
             if model.showForm then
@@ -66,6 +71,18 @@ update msg model =
         ActivePeriodDeactivationTriggered ->
             { model | activePeriod = Inactive } ! []
 
+        StopsRequested ->
+            { model | lineStops = Loading } ! []
+
+        StopsReceived stops ->
+            { model | lineStops = stops }
+                ! (stops
+                    |> accessLineStop
+                    |> List.map (\stop -> getDeparture stop)
+                    |> List.append [ Task.perform TimeReceived Time.now ]
+                    |> List.append [ Task.perform ActivePeriodStartReceived Time.now ]
+                  )
+
 
 
 -- Update functions
@@ -79,8 +96,11 @@ hideForm model =
 addLineStop : Model -> ( Model, Cmd Msg )
 addLineStop model =
     let
+        stops =
+            accessLineStop model.lineStops
+
         newModel =
-            { model | lineStops = model.newLineStop :: model.lineStops }
+            { model | lineStops = Success ((model.newLineStop :: stops)) }
     in
         ( newModel, fetchDepartures newModel )
 
@@ -108,12 +128,14 @@ convertId id =
 setLoading : Model -> List LineStop
 setLoading model =
     model.lineStops
+        |> accessLineStop
         |> List.map (\lineStop -> { lineStop | departures = Loading })
 
 
 fetchDepartures : Model -> Cmd Msg
 fetchDepartures model =
     model.lineStops
+        |> accessLineStop
         |> List.map (\stop -> getDeparture stop)
         |> List.append [ Task.perform TimeReceived Time.now ]
         |> Cmd.batch
@@ -147,3 +169,13 @@ updateStop id departures direction lineStop =
 showForm : Model -> Model
 showForm model =
     { model | showForm = True }
+
+
+accessLineStop : RemoteData e (List a) -> List a
+accessLineStop lineStops =
+    case lineStops of
+        RemoteData.Success stops ->
+            stops
+
+        _ ->
+            []

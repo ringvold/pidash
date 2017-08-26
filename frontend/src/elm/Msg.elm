@@ -22,3 +22,5 @@ type Msg
     | FormSubmitTriggered
     | ActivePeriodStartReceived Time
     | ActivePeriodDeactivationTriggered
+    | StopsRequested
+    | StopsReceived (WebData (List LineStop))

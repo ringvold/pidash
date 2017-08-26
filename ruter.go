@@ -10,9 +10,9 @@ import (
 )
 
 type Line struct {
-	Name      string
-	Id        int
-	Direction sanntidDirection
+	Name      string           `json:"name,sting"`
+	Id        int              `json:"id,int"`
+	Direction sanntidDirection `json:"direction",int`
 }
 
 // ArrivalData cointains the parsed data returned from a request to
@@ -54,7 +54,7 @@ type smallerSanntidData struct {
 	DestinationName     string           `json:"destinationName"`
 	PublishedLineName   string           `json:"publishedLineName"`
 	VehicleMode         int              `json:"vehicleMode"`
-	DirectionRef        sanntidDirection `json:"directionRef,string"`
+	DirectionRef        sanntidDirection `json:"directionRef"`
 	ExpectedArrivalTime string           `json:"expectedArrivalTime"`
 }
 
