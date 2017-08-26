@@ -114,7 +114,7 @@ setLoading model =
 fetchDepartures : Model -> Cmd Msg
 fetchDepartures model =
     model.lineStops
-        |> List.map (\stop -> getDeparture stop model.url)
+        |> List.map (\stop -> getDeparture stop)
         |> List.append [ Task.perform TimeReceived Time.now ]
         |> Cmd.batch
 

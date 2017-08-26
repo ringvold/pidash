@@ -12,8 +12,13 @@ import Msg exposing (Msg(..))
 -- API/HTTP
 
 
-getDeparture : LineStop -> String -> Cmd Msg
-getDeparture stop baseUrl =
+baseUrl : String
+baseUrl =
+    "http://localhost:8081/ruter/sanntid/"
+
+
+getDeparture : LineStop -> Cmd Msg
+getDeparture stop =
     let
         url =
             baseUrl ++ toString stop.id

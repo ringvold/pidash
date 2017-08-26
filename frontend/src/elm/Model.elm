@@ -14,7 +14,6 @@ import Api exposing (getDeparture)
 type alias Model =
     { lineStops : List LineStop
     , currentTime : Maybe Time.Time
-    , url : String
     , showForm : Bool
     , newLineStop : LineStop
     , activePeriod : ActivePeriodStatus
@@ -35,9 +34,6 @@ init =
             , LineStop "Grefsenveien sør" 3010443 Loading B
             ]
 
-        url =
-            "http://localhost:8081/ruter/"
-
         newLineStop : LineStop
         newLineStop =
             LineStop "Grefsenveien sør" 3010443 Loading A
@@ -45,7 +41,6 @@ init =
         model =
             { lineStops = lineStops
             , currentTime = Nothing
-            , url = url
             , showForm = False
             , newLineStop = newLineStop
             , activePeriod = Inactive
@@ -53,7 +48,7 @@ init =
     in
         ( model
         , model.lineStops
-            |> List.map (\stop -> getDeparture stop model.url)
+            |> List.map (\stop -> getDeparture stop)
             |> List.append [ Task.perform TimeReceived Time.now ]
             |> List.append [ Task.perform ActivePeriodStartReceived Time.now ]
             |> Cmd.batch

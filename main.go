@@ -2,10 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/markbates/refresh/refresh/web"
@@ -15,24 +19,36 @@ import (
 	_ "github.com/ringvold/pi-dash/statik"
 )
 
-func ruterHandler(w http.ResponseWriter, r *http.Request) {
+func ruterHandler(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	key, err := strconv.Atoi(vars["key"])
+	stopId, err := strconv.Atoi(vars["stopId"])
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Bad Request"))
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Bad Request"))
 		return
 	}
 
-	data, err := GetArrivalData(key)
+	data, err := GetArrivalData(stopId)
 	dataJson, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		panic(err)
 		return
 	}
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Write(dataJson)
+	rw.Header().Set("Access-Control-Allow-Origin", "*")
+	rw.Write(dataJson)
+}
+
+func selectedStopsHandler(stops []Line) func(http.ResponseWriter, *http.Request) {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		dataJson, err := json.MarshalIndent(stops, "", "  ")
+		if err != nil {
+			panic(err)
+			return
+		}
+		rw.Header().Set("Access-Control-Allow-Origin", "*")
+		rw.Write(dataJson)
+	})
 }
 
 func viperSetup() {
@@ -54,14 +70,76 @@ func main() {
 
 	viperSetup()
 
+	stops := getStopsFromConfig()
+
 	port := viper.Get("port")
 	log.Printf("Starting server. Watch http://localhost:%v", port)
 
 	statikFS, _ := fs.New()
 	router := mux.NewRouter()
 
-	router.HandleFunc("/ruter/{key}", ruterHandler)
+	router.HandleFunc("/ruter/sanntid/{stopId}", ruterHandler)
+	router.HandleFunc("/ruter/selectedStops", selectedStopsHandler(stops))
+
 	router.Handle("/{name:.*}", http.FileServer(statikFS))
 
 	http.ListenAndServe(fmt.Sprintf(":%v", port), web.ErrorChecker(router))
+}
+
+func getStopsFromConfig() []Line {
+	config := viper.Get("lines")
+
+	var lines []Line
+
+	switch reflect.TypeOf(config).Kind() {
+	case reflect.Slice:
+		s := reflect.ValueOf(config)
+
+		for i := 0; i < s.Len(); i++ {
+
+			l := s.Index(i)
+			m := l.Interface().(map[interface{}]interface{})
+
+			var (
+				id        int
+				name      string
+				direction string
+				ok        bool
+			)
+
+			err := errors.New("Error parsing config: Line  id must be an int")
+			id, ok = m["id"].(int)
+			if !ok {
+				panic(err)
+			}
+			err = errors.New("Error parsing config: Line name must be string")
+			name, ok = m["name"].(string)
+			if !ok {
+				panic(err)
+			}
+			err = errors.New("Error parsing config: Line direction must be string")
+			direction, ok = m["direction"].(string)
+			if !ok {
+				panic(err)
+			}
+			sd := directionStringToInt(direction)
+			lines = append(lines, Line{Id: id, Name: name, Direction: sd})
+
+		}
+		fmt.Println("Loaded lines from config:", lines)
+	}
+	return lines
+}
+
+func directionStringToInt(direction string) sanntidDirection {
+	switch strings.ToLower(direction) {
+	case "up":
+		return DirUp
+	case "down":
+		return DirDown
+	default:
+		log.Fatalf("%v is not a valid direction", direction)
+		os.Exit(1)
+		return 0
+	}
 }

@@ -1,4 +1,4 @@
-// Source: https://github.com/michaelenger/sanntid/blob/master/ruter.go
+// Liberally borrowed code form here: https://github.com/michaelenger/sanntid/blob/master/ruter.go
 
 package main
 
@@ -9,6 +9,12 @@ import (
 	"net/http"
 )
 
+type Line struct {
+	Name      string
+	Id        int
+	Direction sanntidDirection
+}
+
 // ArrivalData cointains the parsed data returned from a request to
 // Ruter's API.
 type ArrivalData struct {
@@ -16,9 +22,20 @@ type ArrivalData struct {
 	MonitoredVehicleJourney MonitoredVehicleJourney
 }
 
+type sanntidDirection int
+
 // sanntidDirection defines the direction of the vehicle. It is either,
 // 0 (undefined (?)), 1 or 2.
-type sanntidDirection int
+const (
+	// DirAny will give you Line in any direction.
+	DirAny = iota
+
+	// DirUp will give you Line in only one direction.
+	DirUp
+
+	// DirDown will give you Line in only one direction, reverse of DirUp.
+	DirDown
+)
 
 type sanntidMonitoredCall struct {
 	ExpectedArrivalTime string `json:"expectedArrivalTime"`
@@ -53,7 +70,7 @@ func GetArrivalData(locationID int) ([]smallerSanntidData, error) {
 	return transformed, nil
 }
 
-// Transform ruter response to smaller respons
+// Transform Ruter response to smaller respons
 func transformArrivalData(departures []ArrivalData) []smallerSanntidData {
 	arrivals := make([]smallerSanntidData, 0)
 
