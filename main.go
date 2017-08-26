@@ -126,7 +126,7 @@ func getStopsFromConfig() []Line {
 			lines = append(lines, Line{Id: id, Name: name, Direction: sd})
 
 		}
-		fmt.Println("Loaded lines from config:", lines)
+		log.Println("Loaded lines from config:", lines)
 	}
 	return lines
 }
