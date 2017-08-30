@@ -19,6 +19,8 @@ import (
 	_ "github.com/ringvold/pi-dash/statik"
 )
 
+var stops []Line
+
 func ruterHandler(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
@@ -64,13 +66,22 @@ func viperSetup() {
 	if err != nil {             // Handle errors reading the config file
 		log.Printf("Error reading config file: %s \n", err)
 	}
+
+	// Actually make this work when passing stops to the HandleFunc
+
+	// viper.WatchConfig()
+
+	// viper.OnConfigChange(func(in fsnotify.Event) {
+	// 	fmt.Println("Reloading config")
+	// 	stops = getStopsFromConfig()
+	// })
 }
 
 func main() {
 
 	viperSetup()
 
-	stops := getStopsFromConfig()
+	stops = getStopsFromConfig()
 
 	port := viper.Get("port")
 	log.Printf("Starting server. Watch http://localhost:%v", port)
@@ -91,42 +102,45 @@ func getStopsFromConfig() []Line {
 
 	var lines []Line
 
-	switch reflect.TypeOf(config).Kind() {
-	case reflect.Slice:
-		s := reflect.ValueOf(config)
+	if config != nil {
 
-		for i := 0; i < s.Len(); i++ {
+		switch reflect.TypeOf(config).Kind() {
+		case reflect.Slice:
+			s := reflect.ValueOf(config)
 
-			l := s.Index(i)
-			m := l.Interface().(map[interface{}]interface{})
+			for i := 0; i < s.Len(); i++ {
 
-			var (
-				id        int
-				name      string
-				direction string
-				ok        bool
-			)
+				l := s.Index(i)
+				m := l.Interface().(map[interface{}]interface{})
 
-			err := errors.New("Error parsing config: Line  id must be an int")
-			id, ok = m["id"].(int)
-			if !ok {
-				panic(err)
+				var (
+					id        int
+					name      string
+					direction string
+					ok        bool
+				)
+
+				err := errors.New("Error parsing config: Line  id must be an int")
+				id, ok = m["id"].(int)
+				if !ok {
+					panic(err)
+				}
+				err = errors.New("Error parsing config: Line name must be string")
+				name, ok = m["name"].(string)
+				if !ok {
+					panic(err)
+				}
+				err = errors.New("Error parsing config: Line direction must be string")
+				direction, ok = m["direction"].(string)
+				if !ok {
+					panic(err)
+				}
+				sd := directionStringToInt(direction)
+				lines = append(lines, Line{Id: id, Name: name, Direction: sd})
+
 			}
-			err = errors.New("Error parsing config: Line name must be string")
-			name, ok = m["name"].(string)
-			if !ok {
-				panic(err)
-			}
-			err = errors.New("Error parsing config: Line direction must be string")
-			direction, ok = m["direction"].(string)
-			if !ok {
-				panic(err)
-			}
-			sd := directionStringToInt(direction)
-			lines = append(lines, Line{Id: id, Name: name, Direction: sd})
-
+			log.Println("Loaded lines from config:", lines)
 		}
-		log.Println("Loaded lines from config:", lines)
 	}
 	return lines
 }

@@ -34,7 +34,7 @@ view model =
                 lazy2 LineStop.view stops model.currentTime
 
             _ ->
-                div [] [ text "Ingen stop" ]
+                div [] [ text "No stops available. Have you remembered to add stops to the configuration file?" ]
         ]
 
 
