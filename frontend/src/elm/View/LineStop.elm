@@ -9,6 +9,7 @@ import RemoteData exposing (RemoteData(..))
 import Msg exposing (..)
 import Data.VehicleArrivalTime exposing (..)
 import Data.Stop exposing (..)
+import Data.Direction exposing (Direction(..), directionToComparable)
 
 
 -- LINESTOP VIEW

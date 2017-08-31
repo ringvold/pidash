@@ -3,6 +3,7 @@ module Data.VehicleArrivalTime exposing (..)
 import Date exposing (Date)
 import Json.Decode as Decode exposing (Decoder, decodeValue, succeed, string, int, field)
 import Json.Decode.Extra exposing ((|:), date)
+import Data.Direction exposing (Direction, decodeDirection)
 
 
 type alias VehicleArrivalTime =
@@ -13,12 +14,6 @@ type alias VehicleArrivalTime =
     , expectedArrivalTime : Date
     , lineId : Int
     }
-
-
-type Direction
-    = A
-    | B
-    | Unknown
 
 
 decodeArrivals : Decode.Decoder (List VehicleArrivalTime)
@@ -35,47 +30,3 @@ vehicleArrivalTime =
         |: (field "directionRef" int |> Decode.andThen decodeDirection)
         |: (field "expectedArrivalTime" date)
         |: (field "lineId" int)
-
-
-decodeDirection : Int -> Decoder Direction
-decodeDirection direction =
-    succeed (convertDirection direction)
-
-
-convertDirection : Int -> Direction
-convertDirection directionString =
-    case directionString of
-        1 ->
-            A
-
-        2 ->
-            B
-
-        _ ->
-            Unknown
-
-
-directionToComparable : Direction -> String
-directionToComparable direction =
-    case direction of
-        A ->
-            "A"
-
-        B ->
-            "B"
-
-        _ ->
-            "Unknown"
-
-
-stringToDirection : String -> Direction
-stringToDirection directionString =
-    case directionString of
-        "A" ->
-            A
-
-        "B" ->
-            B
-
-        _ ->
-            Unknown

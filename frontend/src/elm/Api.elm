@@ -1,8 +1,6 @@
 module Api exposing (getDeparture, getStops)
 
 import Http
-import Json.Decode as Json exposing (Decoder, decodeValue, succeed, string, int, field)
-import Json.Decode as Decode
 import RemoteData exposing (WebData, RemoteData(..))
 import Msg exposing (Msg(..))
 import Data.VehicleArrivalTime exposing (..)
@@ -26,17 +24,6 @@ getStops =
         decodeStops
         |> RemoteData.sendRequest
         |> Cmd.map StopsReceived
-
-
-decodeStops : Json.Decoder (List LineStop)
-decodeStops =
-    Decode.list
-        (Decode.map4 LineStop
-            (Decode.field "name" Decode.string)
-            (Decode.field "id" int)
-            (Decode.field "direction" int |> Decode.andThen decodeDirection)
-            (Decode.succeed RemoteData.NotAsked)
-        )
 
 
 getDeparture : LineStop -> Cmd Msg
