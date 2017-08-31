@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -117,7 +116,7 @@ func getStopsFromConfig() []Line {
 			for i := 0; i < s.Len(); i++ {
 
 				l := s.Index(i)
-				fmt.Println(l)
+				// fmt.Println(l)
 				switch m := l.Interface().(type) {
 
 				// YAML
@@ -183,8 +182,8 @@ func directionStringToInt(direction string) sanntidDirection {
 	case "down":
 		return DirDown
 	default:
-		log.Fatalf("%v is not a valid direction", direction)
-		os.Exit(1)
+		log.Printf("Invalid direction '%v'. Setting direction to 'any'.", direction)
+		log.Printf("Valid directions are 'up', 'down' or 'any'.")
 		return 0
 	}
 }
