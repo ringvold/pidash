@@ -2,11 +2,11 @@ module Api exposing (getDeparture, getStops)
 
 import Http
 import Json.Decode as Json exposing (Decoder, decodeValue, succeed, string, int, field)
-import Json.Decode.Extra exposing ((|:), date)
 import Json.Decode as Decode
 import RemoteData exposing (WebData, RemoteData(..))
-import Types exposing (..)
 import Msg exposing (Msg(..))
+import Data.VehicleArrivalTime exposing (..)
+import Data.Stop exposing (..)
 
 
 -- API/HTTP
@@ -48,37 +48,3 @@ getDeparture stop =
         Http.get url decodeArrivals
             |> RemoteData.sendRequest
             |> Cmd.map (DeparturesReceived stop.id stop.direction)
-
-
-decodeArrivals : Json.Decoder (List VehicleArrivalTime)
-decodeArrivals =
-    Json.list vehicleArrivalTime
-
-
-vehicleArrivalTime : Json.Decoder VehicleArrivalTime
-vehicleArrivalTime =
-    succeed VehicleArrivalTime
-        |: (field "destinationName" string)
-        |: (field "publishedLineName" string)
-        |: (field "vehicleMode" int)
-        |: (field "directionRef" int |> Decode.andThen decodeDirection)
-        |: (field "expectedArrivalTime" date)
-        |: (field "lineId" int)
-
-
-decodeDirection : Int -> Decoder Direction
-decodeDirection direction =
-    succeed (convertDirection direction)
-
-
-convertDirection : Int -> Direction
-convertDirection directionString =
-    case directionString of
-        1 ->
-            A
-
-        2 ->
-            B
-
-        _ ->
-            Unknown

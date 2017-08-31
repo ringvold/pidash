@@ -4,11 +4,11 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Date exposing (Date, fromTime)
 import Date.Extra as Date exposing (Interval(..))
-import RemoteData exposing (RemoteData(..))
 import Time exposing (Time, second)
-import Types exposing (..)
-import Helpers exposing (directionToComparable)
+import RemoteData exposing (RemoteData(..))
 import Msg exposing (..)
+import Data.VehicleArrivalTime exposing (..)
+import Data.Stop exposing (..)
 
 
 -- LINESTOP VIEW

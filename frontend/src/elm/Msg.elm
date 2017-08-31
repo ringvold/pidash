@@ -2,7 +2,8 @@ module Msg exposing (Msg(..))
 
 import Time exposing (Time, second)
 import RemoteData exposing (WebData)
-import Types exposing (..)
+import Data.VehicleArrivalTime exposing (..)
+import Data.Stop exposing (..)
 
 
 -- MSG

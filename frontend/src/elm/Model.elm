@@ -2,7 +2,8 @@ module Model exposing (Model, ActivePeriodStatus(..), init)
 
 import Time exposing (Time, second)
 import RemoteData exposing (WebData, RemoteData(..))
-import Types exposing (..)
+import Data.VehicleArrivalTime exposing (..)
+import Data.Stop exposing (..)
 import Msg exposing (..)
 import Api exposing (getDeparture, getStops)
 

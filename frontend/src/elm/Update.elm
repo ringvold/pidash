@@ -3,11 +3,11 @@ module Update exposing (update)
 import Task exposing (perform)
 import Time exposing (Time, second)
 import RemoteData exposing (WebData, RemoteData(..), succeed)
-import Types exposing (..)
 import Model exposing (..)
 import Msg exposing (Msg(..))
 import Api exposing (getDeparture)
-import Helpers exposing (..)
+import Data.VehicleArrivalTime exposing (..)
+import Data.Stop exposing (..)
 
 
 -- UPDATE
