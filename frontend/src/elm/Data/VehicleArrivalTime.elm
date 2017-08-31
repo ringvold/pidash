@@ -12,7 +12,7 @@ type alias VehicleArrivalTime =
     , vehicleMode : Int
     , direction : Direction
     , expectedArrivalTime : Date
-    , lineId : Int
+    , lineId : String
     }
 
 
@@ -29,4 +29,4 @@ vehicleArrivalTime =
         |: (field "vehicleMode" int)
         |: (field "directionRef" int |> Decode.andThen decodeDirection)
         |: (field "expectedArrivalTime" date)
-        |: (field "lineId" int)
+        |: (field "lineId" string)

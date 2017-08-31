@@ -9,19 +9,6 @@ import (
 	"net/http"
 )
 
-type Line struct {
-	Name      string           `json:"name,sting"`
-	Id        int              `json:"id,int"`
-	Direction sanntidDirection `json:"direction",int`
-}
-
-// ArrivalData cointains the parsed data returned from a request to
-// Ruter's API.
-type ArrivalData struct {
-	MonitoringRef           int `json:"monitoringRef,string"`
-	MonitoredVehicleJourney MonitoredVehicleJourney
-}
-
 type sanntidDirection int
 
 // sanntidDirection defines the direction of the vehicle. It is either,
@@ -37,8 +24,17 @@ const (
 	DirDown
 )
 
-type sanntidMonitoredCall struct {
-	ExpectedArrivalTime string `json:"expectedArrivalTime"`
+type Line struct {
+	Name      string           `json:"name"`
+	Id        string           `json:"id"`
+	Direction sanntidDirection `json:"direction"`
+}
+
+// ArrivalData cointains the parsed data returned from a request to
+// Ruter's API.
+type ArrivalData struct {
+	MonitoringRef           string `json:"monitoringRef"`
+	MonitoredVehicleJourney MonitoredVehicleJourney
 }
 
 type MonitoredVehicleJourney struct {
@@ -49,8 +45,12 @@ type MonitoredVehicleJourney struct {
 	DirectionRef      sanntidDirection     `json:"directionRef,string"`
 }
 
+type sanntidMonitoredCall struct {
+	ExpectedArrivalTime string `json:"expectedArrivalTime"`
+}
+
 type smallerSanntidData struct {
-	LineId              int              `json:"lineId"`
+	LineId              string           `json:"lineId"`
 	DestinationName     string           `json:"destinationName"`
 	PublishedLineName   string           `json:"publishedLineName"`
 	VehicleMode         int              `json:"vehicleMode"`

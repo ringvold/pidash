@@ -30,7 +30,7 @@ getDeparture : LineStop -> Cmd Msg
 getDeparture stop =
     let
         url =
-            baseUrl ++ "/sanntid/" ++ toString stop.id
+            baseUrl ++ "/sanntid/" ++ stop.id
     in
         Http.get url decodeArrivals
             |> RemoteData.sendRequest

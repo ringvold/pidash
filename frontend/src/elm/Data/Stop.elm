@@ -10,9 +10,13 @@ type alias Departures =
     List VehicleArrivalTime
 
 
+type alias StopId =
+    Int
+
+
 type alias LineStop =
     { name : String
-    , id : Int
+    , id : String
     , direction : Direction
     , departures : WebData Departures
     }
@@ -23,7 +27,7 @@ decodeStops =
     Decode.list
         (Decode.map4 LineStop
             (Decode.field "name" Decode.string)
-            (Decode.field "id" Decode.int)
+            (Decode.field "id" Decode.string)
             (Decode.field "direction" Decode.int |> Decode.andThen decodeDirection)
             (Decode.succeed RemoteData.NotAsked)
         )

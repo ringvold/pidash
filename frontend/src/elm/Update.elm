@@ -60,23 +60,7 @@ update msg model =
 -- Update functions
 
 
-setLoading : Model -> List LineStop
-setLoading model =
-    model.lineStops
-        |> unwrapLineStop
-        |> List.map (\lineStop -> { lineStop | departures = Loading })
-
-
-fetchDepartures : Model -> Cmd Msg
-fetchDepartures model =
-    model.lineStops
-        |> unwrapLineStop
-        |> List.map (\stop -> getDeparture stop)
-        |> List.append [ Task.perform TimeReceived Time.now ]
-        |> Cmd.batch
-
-
-updateLineStops : Model -> Int -> Direction -> WebData Departures -> Model
+updateLineStops : Model -> String -> Direction -> WebData Departures -> Model
 updateLineStops model id direction departures =
     case model.lineStops of
         RemoteData.Success stops ->
@@ -86,12 +70,12 @@ updateLineStops model id direction departures =
             model
 
 
-updateLineStop : Int -> Direction -> List LineStop -> WebData Departures -> List LineStop
+updateLineStop : String -> Direction -> List LineStop -> WebData Departures -> List LineStop
 updateLineStop id direction lineStops departures =
     List.map (updateStop id departures direction) lineStops
 
 
-updateStop : Int -> WebData Departures -> Direction -> LineStop -> LineStop
+updateStop : String -> WebData Departures -> Direction -> LineStop -> LineStop
 updateStop id departures direction lineStop =
     let
         departureDirection =
@@ -109,6 +93,22 @@ updateStop id departures direction lineStop =
             { lineStop | departures = departures }
         else
             lineStop
+
+
+setLoading : Model -> List LineStop
+setLoading model =
+    model.lineStops
+        |> unwrapLineStop
+        |> List.map (\lineStop -> { lineStop | departures = Loading })
+
+
+fetchDepartures : Model -> Cmd Msg
+fetchDepartures model =
+    model.lineStops
+        |> unwrapLineStop
+        |> List.map (\stop -> getDeparture stop)
+        |> List.append [ Task.perform TimeReceived Time.now ]
+        |> Cmd.batch
 
 
 unwrapLineStop : RemoteData e (List a) -> List a

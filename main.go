@@ -107,36 +107,67 @@ func getStopsFromConfig() []Line {
 		switch reflect.TypeOf(config).Kind() {
 		case reflect.Slice:
 			s := reflect.ValueOf(config)
+			var (
+				id        string
+				name      string
+				direction string
+				ok        bool
+			)
 
 			for i := 0; i < s.Len(); i++ {
 
 				l := s.Index(i)
-				m := l.Interface().(map[interface{}]interface{})
+				fmt.Println(l)
+				switch m := l.Interface().(type) {
 
-				var (
-					id        int
-					name      string
-					direction string
-					ok        bool
-				)
+				// YAML
+				case map[interface{}]interface{}:
+					err := errors.New("Error parsing config: Line id must be an string")
+					id, ok = m["id"].(string)
+					if !ok {
+						intId, ok := m["id"].(int)
+						id = fmt.Sprintf("%v", intId)
+						if !ok {
+							panic(err)
+						}
+					}
+					err = errors.New("Error parsing config: Line name must be string")
+					name, ok = m["name"].(string)
+					if !ok {
+						panic(err)
+					}
+					err = errors.New("Error parsing config: Line direction must be string")
+					direction, ok = m["direction"].(string)
+					if !ok {
+						panic(err)
+					}
+					sd := directionStringToInt(direction)
+					lines = append(lines, Line{Id: id, Name: name, Direction: sd})
 
-				err := errors.New("Error parsing config: Line  id must be an int")
-				id, ok = m["id"].(int)
-				if !ok {
-					panic(err)
+				// JSON
+				case map[string]interface{}:
+					err := errors.New("Error parsing config: Line  id must be an int")
+					if !ok {
+						intId, ok := m["id"].(int)
+						id = fmt.Sprintf("%v", intId)
+						if !ok {
+							panic(err)
+						}
+					}
+					err = errors.New("Error parsing config: Line name must be string")
+					name, ok = m["name"].(string)
+					if !ok {
+						panic(err)
+					}
+					err = errors.New("Error parsing config: Line direction must be string")
+					direction, ok = m["direction"].(string)
+					if !ok {
+						panic(err)
+					}
+					sd := directionStringToInt(direction)
+					lines = append(lines, Line{Id: id, Name: name, Direction: sd})
+
 				}
-				err = errors.New("Error parsing config: Line name must be string")
-				name, ok = m["name"].(string)
-				if !ok {
-					panic(err)
-				}
-				err = errors.New("Error parsing config: Line direction must be string")
-				direction, ok = m["direction"].(string)
-				if !ok {
-					panic(err)
-				}
-				sd := directionStringToInt(direction)
-				lines = append(lines, Line{Id: id, Name: name, Direction: sd})
 
 			}
 			log.Println("Loaded lines from config:", lines)
