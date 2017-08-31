@@ -15,11 +15,6 @@ type Msg
     | TimeReceived Time
     | DeparturesRequested
     | DeparturesReceived Int Direction (WebData Departures)
-    | NewLineStopClicked
-    | FormNameChanged String
-    | FormIdChanged String
-    | FormDirectionChanged String
-    | FormSubmitTriggered
     | ActivePeriodStartReceived Time
     | ActivePeriodDeactivationTriggered
     | StopsRequested

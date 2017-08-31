@@ -7,7 +7,6 @@ import Html.Lazy exposing (lazy2)
 import Date.Extra as DE
 import Date
 import RemoteData
-import View.NewLineStop as NewLineStop
 import Msg exposing (..)
 import Model exposing (Model, ActivePeriodStatus(..), init)
 import View.LineStop as LineStop
@@ -24,18 +23,24 @@ view model =
             , activePeriod model.activePeriod
             , lastUpdated model.activePeriod
             ]
-        , button [ onClick NewLineStopClicked, class "btn btn-primary" ] [ text "Legg til stopp" ]
-        , if model.showForm then
-            NewLineStop.view
-          else
-            text ""
-        , case model.lineStops of
-            RemoteData.Success stops ->
-                lazy2 LineStop.view stops model.currentTime
-
-            _ ->
-                div [] [ text "No stops available. Have you remembered to add stops to the configuration file?" ]
+        , viewLineStops model
         ]
+
+
+viewLineStops : Model -> Html Msg
+viewLineStops model =
+    case model.lineStops of
+        RemoteData.Success stops ->
+            lazy2 LineStop.view stops model.currentTime
+
+        RemoteData.NotAsked ->
+            div [] [ text "No stops available. Have you remembered to add stops to the configuration file?" ]
+
+        RemoteData.Loading ->
+            div [] [ h2 [ class "text-center" ] [ text "LOADING STOPS!1!" ] ]
+
+        RemoteData.Failure err ->
+            div [] [ text <| toString err ]
 
 
 activePeriod : ActivePeriodStatus -> Html Msg

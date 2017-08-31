@@ -26,7 +26,7 @@ viewDepartures lineStop currentTime =
         NotAsked ->
             div [ class "departures col-sm-4" ]
                 [ h2 [] [ text lineStop.name ]
-                , viewMessage "Nothing here yet. Just the open road." "glyphicon-road"
+                , viewMessage "Loading" "glyphicon-refresh spinning"
                 ]
 
         Loading ->

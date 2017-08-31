@@ -30,39 +30,11 @@ update msg model =
             { model | currentTime = Just time } ! []
 
         DeparturesRequested ->
-            ( { model | lineStops = setLoading model |> Success }
-            , fetchDepartures model
-            )
+            { model | lineStops = setLoading model |> Success }
+                ! [ fetchDepartures model ]
 
         DeparturesReceived id direction departures ->
-            case model.lineStops of
-                RemoteData.Success stops ->
-                    ( { model | lineStops = Success (updateLineStop id direction stops departures) }
-                    , Cmd.none
-                    )
-
-                _ ->
-                    model ! []
-
-        NewLineStopClicked ->
-            if model.showForm then
-                { model | showForm = False } ! []
-            else
-                { model | showForm = True } ! []
-
-        FormNameChanged value ->
-            { model | newLineStop = (updateNewName model.newLineStop value) } ! []
-
-        FormIdChanged value ->
-            { model | newLineStop = (updateNewId model.newLineStop value) }
-                ! []
-
-        FormDirectionChanged value ->
-            { model | newLineStop = (updateNewDirection model.newLineStop value) } ! []
-
-        FormSubmitTriggered ->
-            hideForm model
-                |> addLineStop
+            updateLineStops model id direction departures ! []
 
         ActivePeriodStartReceived time ->
             { model | activePeriod = Active time }
@@ -77,7 +49,7 @@ update msg model =
         StopsReceived stops ->
             { model | lineStops = stops }
                 ! (stops
-                    |> accessLineStop
+                    |> unwrapLineStop
                     |> List.map (\stop -> getDeparture stop)
                     |> List.append [ Task.perform TimeReceived Time.now ]
                     |> List.append [ Task.perform ActivePeriodStartReceived Time.now ]
@@ -88,57 +60,30 @@ update msg model =
 -- Update functions
 
 
-hideForm : Model -> Model
-hideForm model =
-    { model | showForm = False }
-
-
-addLineStop : Model -> ( Model, Cmd Msg )
-addLineStop model =
-    let
-        stops =
-            accessLineStop model.lineStops
-
-        newModel =
-            { model | lineStops = Success ((model.newLineStop :: stops)) }
-    in
-        ( newModel, fetchDepartures newModel )
-
-
-updateNewName : LineStop -> String -> LineStop
-updateNewName lineStop newName =
-    { lineStop | name = newName }
-
-
-updateNewId : LineStop -> String -> LineStop
-updateNewId lineStop newId =
-    { lineStop | id = convertId newId }
-
-
-updateNewDirection : LineStop -> String -> LineStop
-updateNewDirection lineStop newDirection =
-    { lineStop | direction = stringToDirection newDirection }
-
-
-convertId : String -> Int
-convertId id =
-    Result.withDefault 0 (String.toInt id)
-
-
 setLoading : Model -> List LineStop
 setLoading model =
     model.lineStops
-        |> accessLineStop
+        |> unwrapLineStop
         |> List.map (\lineStop -> { lineStop | departures = Loading })
 
 
 fetchDepartures : Model -> Cmd Msg
 fetchDepartures model =
     model.lineStops
-        |> accessLineStop
+        |> unwrapLineStop
         |> List.map (\stop -> getDeparture stop)
         |> List.append [ Task.perform TimeReceived Time.now ]
         |> Cmd.batch
+
+
+updateLineStops : Model -> Int -> Direction -> WebData Departures -> Model
+updateLineStops model id direction departures =
+    case model.lineStops of
+        RemoteData.Success stops ->
+            { model | lineStops = updateLineStop id direction stops departures |> Success }
+
+        _ ->
+            model
 
 
 updateLineStop : Int -> Direction -> List LineStop -> WebData Departures -> List LineStop
@@ -166,13 +111,8 @@ updateStop id departures direction lineStop =
             lineStop
 
 
-showForm : Model -> Model
-showForm model =
-    { model | showForm = True }
-
-
-accessLineStop : RemoteData e (List a) -> List a
-accessLineStop lineStops =
+unwrapLineStop : RemoteData e (List a) -> List a
+unwrapLineStop lineStops =
     case lineStops of
         RemoteData.Success stops ->
             stops
