@@ -2,7 +2,7 @@ module Msg exposing (Msg(..))
 
 import Time exposing (Time, second)
 import RemoteData exposing (WebData)
-import Data.Stop exposing (Departures, LineStop, StopId)
+import Data.LineStop exposing (Departures, LineStop, StopId)
 import Data.Direction exposing (Direction)
 
 

@@ -1,4 +1,4 @@
-module Data.Stop exposing (..)
+module Data.LineStop exposing (..)
 
 import Json.Decode as Decode
 import RemoteData exposing (WebData)
