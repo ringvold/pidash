@@ -1,0 +1,5 @@
+package met
+
+func lol() {
+
+}

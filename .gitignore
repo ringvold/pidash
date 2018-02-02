@@ -8,5 +8,5 @@ frontend/.DS_Store
 main
 vendor
 pi-dash
-bin
+build
 statik

@@ -1,6 +1,6 @@
 // Liberally borrowed code form here: https://github.com/michaelenger/sanntid/blob/master/ruter.go
 
-package main
+package ruter
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-type sanntidDirection int
+type SanntidDirection int
 
 // sanntidDirection defines the direction of the vehicle. It is either,
 // 0 (undefined (?)), 1 or 2.
@@ -27,7 +27,7 @@ const (
 type Line struct {
 	Name      string           `json:"name"`
 	Id        string           `json:"id"`
-	Direction sanntidDirection `json:"direction"`
+	Direction SanntidDirection `json:"direction"`
 }
 
 // ArrivalData cointains the parsed data returned from a request to
@@ -42,7 +42,7 @@ type MonitoredVehicleJourney struct {
 	MonitoredCall     sanntidMonitoredCall `json:"monitoredCall"`
 	PublishedLineName string               `json:"publishedLineName"`
 	VehicleMode       int                  `json:"vehicleMode"`
-	DirectionRef      sanntidDirection     `json:"directionRef,string"`
+	DirectionRef      SanntidDirection     `json:"directionRef,string"`
 }
 
 type sanntidMonitoredCall struct {
@@ -54,7 +54,7 @@ type smallerSanntidData struct {
 	DestinationName     string           `json:"destinationName"`
 	PublishedLineName   string           `json:"publishedLineName"`
 	VehicleMode         int              `json:"vehicleMode"`
-	DirectionRef        sanntidDirection `json:"directionRef"`
+	DirectionRef        SanntidDirection `json:"directionRef"`
 	ExpectedArrivalTime string           `json:"expectedArrivalTime"`
 }
 
