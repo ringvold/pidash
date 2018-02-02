@@ -6,7 +6,7 @@ import RemoteData exposing (WebData, RemoteData(..), succeed)
 import Model exposing (..)
 import Msg exposing (Msg(..))
 import Api exposing (getDeparture)
-import Data.Stop exposing (LineStop, Departures)
+import Data.LineStop exposing (LineStop, Departures)
 import Data.Direction exposing (Direction(..), directionToComparable)
 
 

@@ -8,7 +8,7 @@ import Time exposing (Time, second)
 import RemoteData exposing (RemoteData(..))
 import Msg exposing (..)
 import Data.VehicleArrivalTime exposing (..)
-import Data.Stop exposing (..)
+import Data.LineStop exposing (..)
 import Data.Direction exposing (Direction(..), directionToComparable)
 
 

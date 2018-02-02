@@ -4,7 +4,7 @@ import Http
 import RemoteData exposing (WebData, RemoteData(..))
 import Msg exposing (Msg(..))
 import Data.VehicleArrivalTime exposing (..)
-import Data.Stop exposing (..)
+import Data.LineStop exposing (..)
 
 
 -- API/HTTP
