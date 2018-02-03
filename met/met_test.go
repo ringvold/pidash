@@ -1,5 +1,7 @@
 package met
 
-func lol() {
+import "testing"
 
+func TestDecode(t *testing.T) {
+	// TODO: Implement test
 }
