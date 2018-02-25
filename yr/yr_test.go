@@ -1,4 +1,4 @@
-package met
+package yr
 
 import "testing"
 

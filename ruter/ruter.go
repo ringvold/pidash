@@ -7,28 +7,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/ringvold/pidash"
 )
-
-type SanntidDirection int
-
-// sanntidDirection defines the direction of the vehicle. It is either,
-// 0 (undefined (?)), 1 or 2.
-const (
-	// DirAny will give you Line in any direction.
-	DirAny = iota
-
-	// DirUp will give you Line in only one direction.
-	DirUp
-
-	// DirDown will give you Line in only one direction, reverse of DirUp.
-	DirDown
-)
-
-type Line struct {
-	Name      string           `json:"name"`
-	Id        string           `json:"id"`
-	Direction SanntidDirection `json:"direction"`
-}
 
 // ArrivalData cointains the parsed data returned from a request to
 // Ruter's API.
@@ -38,11 +19,11 @@ type ArrivalData struct {
 }
 
 type MonitoredVehicleJourney struct {
-	DestinationName   string               `json:"destinationName"`
-	MonitoredCall     sanntidMonitoredCall `json:"monitoredCall"`
-	PublishedLineName string               `json:"publishedLineName"`
-	VehicleMode       int                  `json:"vehicleMode"`
-	DirectionRef      SanntidDirection     `json:"directionRef,string"`
+	DestinationName   string                  `json:"destinationName"`
+	MonitoredCall     sanntidMonitoredCall    `json:"monitoredCall"`
+	PublishedLineName string                  `json:"publishedLineName"`
+	VehicleMode       int                     `json:"vehicleMode"`
+	DirectionRef      pidash.SanntidDirection `json:"directionRef,string"`
 }
 
 type sanntidMonitoredCall struct {
@@ -50,12 +31,12 @@ type sanntidMonitoredCall struct {
 }
 
 type smallerSanntidData struct {
-	LineId              string           `json:"lineId"`
-	DestinationName     string           `json:"destinationName"`
-	PublishedLineName   string           `json:"publishedLineName"`
-	VehicleMode         int              `json:"vehicleMode"`
-	DirectionRef        SanntidDirection `json:"directionRef"`
-	ExpectedArrivalTime string           `json:"expectedArrivalTime"`
+	LineId              string                  `json:"lineId"`
+	DestinationName     string                  `json:"destinationName"`
+	PublishedLineName   string                  `json:"publishedLineName"`
+	VehicleMode         int                     `json:"vehicleMode"`
+	DirectionRef        pidash.SanntidDirection `json:"directionRef"`
+	ExpectedArrivalTime string                  `json:"expectedArrivalTime"`
 }
 
 // Get the arrival data for a specific location ID

@@ -1,4 +1,4 @@
-app_root: .
+app_root: ./cmd/pi-dash
 ignored_folders:
 - vendor
 - log
@@ -7,6 +7,7 @@ ignored_folders:
 - node_modules
 - bin
 - templates
+- build
 included_extensions:
 - .go
 build_path: /var/folders/fr/j4j2z17j5g12mq3nl0qn2r1sv24k4b/T/
