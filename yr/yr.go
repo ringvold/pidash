@@ -2,7 +2,6 @@ package yr
 
 import (
 	"encoding/xml"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 )
@@ -14,10 +13,9 @@ import (
 // http://erikflowers.github.io/weather-icons/
 
 type Symbol struct {
-	Number   int    `xml:"number,attr"`
-	NumberEx int    `xml:"numberEx,attr"`
-	Name     string `xml:"name,attr"`
-	Var      string `xml:"var,attr"`
+	Number string `xml:"numberEx,attr"`
+	Name   string `xml:"name,attr"`
+	Var    string `xml:"var,attr"`
 }
 
 type Temperature struct {
@@ -34,6 +32,7 @@ type Time struct {
 }
 
 type WeatherData struct {
+	Name      string `xml:"location>name"`
 	Forecasts []Time `xml:"forecast>tabular>time"`
 	Sun       Sun    `xml:"sun"`
 }
@@ -43,15 +42,13 @@ type Sun struct {
 	Set  string `xml:"set,attr"`
 }
 
-func GetForecast() (WeatherData, error) {
-	data, err := requestForecast("https://www.yr.no/sted/Norge/Oslo/Oslo/Storo/forecast.xml")
+func GetForecast(url string) (WeatherData, error) {
+	data, err := requestForecast(url)
 	if err != nil {
 		return WeatherData{}, err
 	}
 	transformed, err := parseForecast(data)
-	fmt.Println(transformed)
 	return transformed, err
-
 }
 
 func parseForecast(content []byte) (WeatherData, error) {

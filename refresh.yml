@@ -1,4 +1,4 @@
-app_root: ./cmd/pi-dash
+app_root: .
 ignored_folders:
 - vendor
 - log
@@ -10,8 +10,9 @@ ignored_folders:
 - build
 included_extensions:
 - .go
-build_path: /var/folders/fr/j4j2z17j5g12mq3nl0qn2r1sv24k4b/T/
+build_path: /tmp
 build_delay: 200ns
+build_target_path : "./cmd/pi-dash"
 binary_name: refresh-build
 command_flags: []
 command_env: []
