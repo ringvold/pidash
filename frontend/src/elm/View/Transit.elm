@@ -1,4 +1,4 @@
-module View.LineStop exposing (view)
+module View.Transit exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -15,8 +15,8 @@ import Data.Direction exposing (Direction(..), directionToComparable)
 -- LINESTOP VIEW
 
 
-view : List LineStop -> Maybe Time -> Html Msg
-view lineStops currentTime =
+viewStops : List LineStop -> Maybe Time -> Html Msg
+viewStops lineStops currentTime =
     List.map (\ls -> viewDepartures ls currentTime) lineStops
         |> div [ class "lineStops row" ]
 
