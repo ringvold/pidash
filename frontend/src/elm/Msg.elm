@@ -11,7 +11,7 @@ import Data.Direction exposing (Direction)
 
 type Msg
     = NoOp
-    | HeaderTriggered
+    | RefreshTriggered
     | TimeRequested
     | TimeReceived Time
     | DeparturesRequested

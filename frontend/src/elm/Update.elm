@@ -19,7 +19,7 @@ update msg model =
         NoOp ->
             model ! []
 
-        HeaderTriggered ->
+        RefreshTriggered ->
             { model | lineStops = setLoading model |> Success }
                 ! [ fetchDepartures model, Task.perform ActivePeriodStartReceived Time.now ]
 
