@@ -30,21 +30,24 @@ view model =
                 Inactive ->
                     "label label-default"
     in
-        div [ class "container-fluid", onClick RefreshTriggered ]
-            [ div []
+        div []
+            [ div [ class "header container-fluid" ]
                 [ h1 [ class "title" ]
                     [ span [ class activeIndicator ] [ text "Avganger" ]
                     ]
                 , viewClosestForecast <| List.head model.forecasts
                 ]
-            , viewLineStops model
+            , div [ class "container-fluid", onClick RefreshTriggered ] [ viewLineStops model ]
             ]
 
 
 viewClosestForecast forecast =
     case forecast of
         Just forecast ->
-            div [ class "quick-forecast" ] [ img [ src <| symbolSvg forecast.symbol ] [] ]
+            div [ class "quick-forecast" ]
+                [ span [ class "temperature" ] [ text (forecast.temperature ++ " C") ]
+                , img [ src <| symbolSvg forecast.symbol ] []
+                ]
 
         Nothing ->
             text ""

@@ -7,18 +7,35 @@ body {
   background: darkgrey;
 }
 
+.header {
+  margin-top: 15px;
+}
+
 .forecast {
   text-align: center;
 }
 
 .quick-forecast {
-  width: 10%;
   float: right;
-  display: inline-block;
+  display: flex;
+  height: 4em;
+}
+
+.quick-forecast .temperature {
+  flex: 1 auto;
+  align-self: center;
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.quick-forecast img {
+  width: auto;
+  height: 100%;
 }
 
 .title {
   display: inline-block;
+  margin-top: 0;
 }
 .departures {
   text-align: center;
