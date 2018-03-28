@@ -4,6 +4,7 @@ import Time exposing (Time, second)
 import RemoteData exposing (WebData)
 import Data.LineStop exposing (Departures, LineStop, StopId)
 import Data.Direction exposing (Direction)
+import Data.Weather exposing (Forecast)
 
 
 -- MSG
@@ -20,3 +21,5 @@ type Msg
     | ActivePeriodDeactivationTriggered
     | StopsRequested
     | StopsReceived (WebData (List LineStop))
+    | ForecastRequested
+    | ForecastReceived (WebData (List Forecast))

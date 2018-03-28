@@ -21,6 +21,14 @@ body {
   height: 4em;
 }
 
+.quick-forecast .col1 {
+  margin-right: 0.7em;
+}
+
+.quick-forecast .symbol-name {
+  text-align: center;
+}
+
 .quick-forecast .temperature {
   flex: 1 auto;
   align-self: center;

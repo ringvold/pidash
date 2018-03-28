@@ -8,8 +8,8 @@ import Time exposing (Time, second)
 import RemoteData exposing (WebData, RemoteData(..))
 import Data.LineStop exposing (..)
 import Msg exposing (..)
-import Api exposing (getDeparture, getStops)
-import Data.Weather exposing (Forecast)
+import Api exposing (getDeparture, getStops, getForecast)
+import Data.Weather exposing (Forecast, Symbol)
 
 
 -- MODEL
@@ -19,7 +19,7 @@ type alias Model =
     { lineStops : WebData (List LineStop)
     , currentTime : Maybe Time.Time
     , activePeriod : ActivePeriodStatus
-    , forecasts : List Forecast
+    , forecasts : WebData (List Forecast)
     }
 
 
@@ -28,10 +28,14 @@ type ActivePeriodStatus
     | Active Time
 
 
+symbol =
+    Symbol "4" "Skyet" "04"
+
+
 forecasts =
-    [ Forecast "-19" "01d" "2018-02-23T19:00:00" "2018-02-24T00:00:00"
-    , Forecast "-19" "03d" "2018-02-23T19:00:00" "2018-02-24T00:00:00"
-    , Forecast "-19" "23" "2018-02-23T19:00:00" "2018-02-24T00:00:00"
+    [ Forecast "-19" symbol "2018-02-23T19:00:00" "2018-02-24T00:00:00"
+    , Forecast "-19" symbol "2018-02-23T19:00:00" "2018-02-24T00:00:00"
+    , Forecast "-19" symbol "2018-02-23T19:00:00" "2018-02-24T00:00:00"
     ]
 
 
@@ -45,7 +49,7 @@ init =
             { lineStops = lineStops
             , currentTime = Nothing
             , activePeriod = Inactive
-            , forecasts = forecasts
+            , forecasts = Loading
             }
     in
-        model ! [ getStops ]
+        model ! [ getStops, getForecast ]
