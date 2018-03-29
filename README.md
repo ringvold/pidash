@@ -6,7 +6,9 @@ The UI is optimized to be displayed in a [Raspberry Pi 7" touch display](https:/
 
 ## How to use
 
-Download the binary for your platform from the [releases page](https://github.com/ringvold/pidash/releases) (or build form source for other platforms). Configure the transit stops to get information about in `pi-dash.yml` and put it in the same folder as the binary. See `pi-dash.yml.sample` for config example.
+1. Download the binary for your platform from the [releases page](https://github.com/ringvold/pidash/releases) (or build form source for other platforms). 
+2. Configure the transit stops to get information about in `pi-dash.yml` 
+3. Put `pi-dash.yml` it in the same folder as the binary. See `pi-dash.yml.sample` for config example.
 
 ## Motivation
 
