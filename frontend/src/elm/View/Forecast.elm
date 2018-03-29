@@ -1,4 +1,0 @@
-module View.Forecast exposing (..)
-
-
-

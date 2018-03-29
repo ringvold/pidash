@@ -5,7 +5,7 @@ import Time exposing (Time, second)
 import RemoteData exposing (WebData, RemoteData(..), succeed)
 import Model exposing (..)
 import Msg exposing (Msg(..))
-import Api exposing (getDeparture)
+import Api exposing (getDeparture, getForecast)
 import Data.LineStop exposing (LineStop, Departures)
 import Data.Direction exposing (Direction(..), directionToComparable)
 
@@ -19,7 +19,7 @@ update msg model =
         NoOp ->
             model ! []
 
-        HeaderTriggered ->
+        RefreshTriggered ->
             { model | lineStops = setLoading model |> Success }
                 ! [ fetchDepartures model, Task.perform ActivePeriodStartReceived Time.now ]
 
@@ -54,6 +54,12 @@ update msg model =
                     |> List.append [ Task.perform TimeReceived Time.now ]
                     |> List.append [ Task.perform ActivePeriodStartReceived Time.now ]
                   )
+
+        ForecastRequested ->
+            { model | forecasts = Loading } ! [ getForecast ]
+
+        ForecastReceived forecasts ->
+            { model | forecasts = forecasts } ! []
 
 
 

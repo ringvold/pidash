@@ -3,7 +3,48 @@ $icon-font-path: '~bootstrap-sass/assets/fonts/bootstrap/';
 @import '~bootstrap-sass/assets/stylesheets/_bootstrap.scss';
 
 // can add Boostrap overrides, additional Sass/CSS below...
+body {
+  background: darkgrey;
+}
 
+.header {
+  margin-top: 15px;
+}
+
+.forecast {
+  text-align: center;
+}
+
+.quick-forecast {
+  float: right;
+  display: flex;
+  height: 4em;
+}
+
+.quick-forecast .col1 {
+  margin-right: 0.7em;
+}
+
+.quick-forecast .symbol-name {
+  text-align: center;
+}
+
+.quick-forecast .temperature {
+  flex: 1 auto;
+  align-self: center;
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.quick-forecast img {
+  width: auto;
+  height: 100%;
+}
+
+.title {
+  display: inline-block;
+  margin-top: 0;
+}
 .departures {
   text-align: center;
 }
@@ -17,21 +58,27 @@ $icon-font-path: '~bootstrap-sass/assets/fonts/bootstrap/';
 }
 
 .glyphicon.spinning {
-    animation: spin 1.4s infinite linear;
+  animation: spin 1.4s infinite linear;
 }
 
 @keyframes spin {
-    from { transform: scale(1) rotate(0deg); }
-    to { transform: scale(1) rotate(360deg); }
+  from {
+    transform: scale(1) rotate(0deg);
+  }
+  to {
+    transform: scale(1) rotate(360deg);
+  }
 }
 
 @-webkit-keyframes spin2 {
-    from { -webkit-transform: rotate(0deg); }
-    to { -webkit-transform: rotate(360deg); }
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+  }
 }
-
 
 .last-updated {
   font-size: 0.4em;
 }
-
