@@ -28,17 +28,6 @@ type ActivePeriodStatus
     | Active Time
 
 
-symbol =
-    Symbol "4" "Skyet" "04"
-
-
-forecasts =
-    [ Forecast "-19" symbol "2018-02-23T19:00:00" "2018-02-24T00:00:00"
-    , Forecast "-19" symbol "2018-02-23T19:00:00" "2018-02-24T00:00:00"
-    , Forecast "-19" symbol "2018-02-23T19:00:00" "2018-02-24T00:00:00"
-    ]
-
-
 init : ( Model, Cmd Msg )
 init =
     let
