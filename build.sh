@@ -1,4 +1,4 @@
-echo "Start building pi-dash"
+echo "Start building pidash"
 echo ""
 echo "Building frontend"
 (cd frontend && yarn run build)
