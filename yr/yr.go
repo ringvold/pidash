@@ -43,18 +43,12 @@ type Sun struct {
 }
 
 func GetForecast(url string) (WeatherData, error) {
-	var data WeatherData
-	// data, err := requestForecast(url)
-	// if err != nil {
-	// 	return WeatherData{}, err
-	// }
-	err := xml.Unmarshal([]byte(xmlMock()), &data)
+	data, err := requestForecast(url)
 	if err != nil {
 		return WeatherData{}, err
 	}
-	return data, nil
-	// transformed, err := parseForecast(data)
-	// return transformed, err
+	transformed, err := parseForecast(data)
+	return transformed, err
 }
 
 func parseForecast(content []byte) (WeatherData, error) {
@@ -76,6 +70,12 @@ func requestForecast(url string) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
+// var data WeatherData
+// err := xml.Unmarshal([]byte(xmlMock()), &data)
+// if err != nil {
+// 	return WeatherData{}, err
+// }
+// return data, nil
 func xmlMock() string {
 	return `<weatherdata>
   <location>
