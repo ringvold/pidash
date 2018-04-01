@@ -1,3 +1,4 @@
+# port: 3000
 lines:
   - name: 'Storo sør'
     id: 3012122
@@ -8,3 +9,4 @@ lines:
   - name: 'Grefsenveien sør'
     id: 3010443
     direction: down
+weatherUrl: https://www.yr.no/sted/Norge/Oslo/Oslo/Storo/forecast.xml
