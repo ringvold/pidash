@@ -59,7 +59,13 @@ if (TARGET_ENV === 'development') {
     devServer: {
       // serve index.html in place of 404 responses
       historyApiFallback: true,
-      contentBase: './src'
+      contentBase: './src',
+      proxy: [
+        {
+          context: ['/weather', '/ruter'],
+          target: 'http://localhost:8081'
+        }
+      ]
     },
 
     module: {

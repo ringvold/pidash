@@ -50,7 +50,7 @@ update msg model =
             { model | lineStops = stops }
                 ! (stops
                     |> unwrapLineStop
-                    |> List.map (\stop -> getDeparture stop)
+                    |> List.map getDeparture
                     |> List.append [ Task.perform TimeReceived Time.now ]
                     |> List.append [ Task.perform ActivePeriodStartReceived Time.now ]
                   )
@@ -112,7 +112,7 @@ fetchDepartures : Model -> Cmd Msg
 fetchDepartures model =
     model.lineStops
         |> unwrapLineStop
-        |> List.map (\stop -> getDeparture stop)
+        |> List.map getDeparture
         |> List.append [ Task.perform TimeReceived Time.now ]
         |> Cmd.batch
 

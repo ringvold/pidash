@@ -11,17 +11,10 @@ import Data.Weather exposing (decodeForecast)
 -- API/HTTP
 
 
-baseUrl : String
-baseUrl =
-    "http://localhost:8081"
-
-
 getStops : Cmd Msg
 getStops =
     Http.get
-        (baseUrl
-            ++ "/ruter/selectedStops"
-        )
+        "/ruter/selectedStops"
         decodeStops
         |> RemoteData.sendRequest
         |> Cmd.map StopsReceived
@@ -31,7 +24,7 @@ getDeparture : LineStop -> Cmd Msg
 getDeparture stop =
     let
         url =
-            baseUrl ++ "/ruter/sanntid/" ++ stop.id
+            "/ruter/sanntid/" ++ stop.id
     in
         Http.get url decodeArrivals
             |> RemoteData.sendRequest
@@ -40,6 +33,6 @@ getDeparture stop =
 
 getForecast : Cmd Msg
 getForecast =
-    Http.get (baseUrl ++ "/weather/forecast") decodeForecast
+    Http.get "/weather/forecast" decodeForecast
         |> RemoteData.sendRequest
         |> Cmd.map ForecastReceived
