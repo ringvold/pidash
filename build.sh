@@ -1,3 +1,8 @@
+# Builds the whole project
+# Requires:
+# - statik (go get github.com/rakyll/statik)
+# - gox (go get github.com/mitchellh/gox)
+
 echo "Start building pidash"
 echo ""
 echo "Building frontend"
