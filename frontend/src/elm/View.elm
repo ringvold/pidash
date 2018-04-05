@@ -53,7 +53,7 @@ viewClosestForecast forecasts =
                 case List.head casts of
                     Just forecast ->
                         wrapper
-                            [ div [ class "col1" ]
+                            [ div [ class "col1", onClick ForecastRequested ]
                                 [ div [ class "temperature" ] [ text <| forecast.temperature ++ " °C" ]
                                 , div [ class "symbol-name" ] [ text forecast.symbol.name ]
                                 ]
