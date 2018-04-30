@@ -20,8 +20,12 @@ update msg model =
             model ! []
 
         RefreshTriggered ->
-            { model | lineStops = setLoading model |> Success }
-                ! [ fetchDepartures model, Task.perform ActivePeriodStartReceived Time.now ]
+            let
+                newModel =
+                    setForecastLoading model
+            in
+                { newModel | lineStops = setLoading model |> Success }
+                    ! [ Task.perform ActivePeriodStartReceived Time.now, fetchDepartures model, getForecast ]
 
         TimeRequested ->
             model ! [ Task.perform TimeReceived Time.now ]
@@ -56,7 +60,7 @@ update msg model =
                   )
 
         ForecastRequested ->
-            { model | forecasts = Loading } ! [ getForecast ]
+            setForecastLoading model ! [ getForecast ]
 
         ForecastReceived forecasts ->
             { model | forecasts = forecasts } ! []
@@ -64,6 +68,11 @@ update msg model =
 
 
 -- Update functions
+
+
+setForecastLoading : Model -> Model
+setForecastLoading model =
+    { model | forecasts = Loading }
 
 
 updateLineStops : Model -> String -> Direction -> WebData Departures -> Model
