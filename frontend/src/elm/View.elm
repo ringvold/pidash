@@ -4,11 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Lazy exposing (lazy2)
-
-
---import Date.Extra as DE
---import Date
-
+import View.Weather
 import RemoteData exposing (WebData)
 import Http
 import Msg exposing (..)
@@ -50,20 +46,9 @@ viewClosestForecast forecasts =
     in
         case forecasts of
             RemoteData.Success casts ->
-                case List.head casts of
-                    Just forecast ->
-                        wrapper
-                            [ div [ class "col1", onClick ForecastRequested ]
-                                [ div [ class "temperature" ] [ text <| forecast.temperature ++ " °C" ]
-                                , div [ class "symbol-name" ] [ text forecast.symbol.name ]
-                                ]
-                            , img [ src <| symbolSvg forecast.symbol.var ] []
-                            ]
-
-                    Nothing ->
-                        wrapper
-                            [ text "-"
-                            ]
+                List.take 2 casts
+                    |> List.map View.Weather.viewForecast
+                    |> wrapper
 
             RemoteData.Failure err ->
                 case err of
@@ -81,11 +66,6 @@ viewClosestForecast forecasts =
                 wrapper
                     [ text "-"
                     ]
-
-
-symbolSvg : String -> String
-symbolSvg symbol =
-    "/static/symbol/svg/" ++ symbol ++ ".svg"
 
 
 viewLineStops : Model -> Html Msg

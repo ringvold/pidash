@@ -18,7 +18,12 @@ body {
 .quick-forecast {
   float: right;
   display: flex;
+}
+
+.quick-forecast .forecast {
+  display: flex;
   height: 4em;
+  margin-left: 2em;
 }
 
 .quick-forecast .col1 {
