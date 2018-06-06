@@ -22,12 +22,14 @@ body {
 
 .quick-forecast .forecast {
   display: flex;
+  flex-direction: column;
   height: 4em;
   margin-left: 2em;
 }
 
 .quick-forecast .col1 {
-  margin-right: 0.7em;
+  display: flex;
+  flex-direction: row;
 }
 
 .quick-forecast .symbol-name {
@@ -36,14 +38,17 @@ body {
 
 .quick-forecast .temperature {
   flex: 1 auto;
-  align-self: center;
   font-size: 2em;
   font-weight: bold;
 }
 
+.quick-forecast .img-wrapper {
+  display: flex;
+  flex: 1 auto;
+  padding-left: 1em;
+}
 .quick-forecast img {
-  width: auto;
-  height: 100%;
+  height: 37px;
 }
 
 .title {

@@ -3,6 +3,7 @@ module View.Weather exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Date
 import Msg exposing (..)
 import Data.Weather exposing (Forecast)
 
@@ -17,10 +18,25 @@ viewForecast forecast =
     div [ class "forecast" ]
         [ div [ class "col1", onClick ForecastRequested ]
             [ div [ class "temperature" ] [ text <| forecast.temperature ++ " °C" ]
-            , div [ class "symbol-name" ] [ text forecast.symbol.name ]
+            , div [ class "img-wrapper" ] [ img [ src <| symbolSvg forecast.symbol.var ] [] ]
             ]
-        , img [ src <| symbolSvg forecast.symbol.var ] []
+        , div [ class "symbol-name" ]
+            [ span [ class "periode" ] [ text <| timePeriod forecast ]
+            , span [ class "tekst-status" ] [ text forecast.symbol.name ]
+            ]
         ]
+
+
+timePeriod : Forecast -> String
+timePeriod forecast =
+    let
+        from =
+            String.padLeft 2 '0' <| toString <| Date.hour forecast.from
+
+        to =
+            String.padLeft 2 '0' <| toString <| Date.hour forecast.to
+    in
+        "kl. " ++ from ++ "-" ++ to ++ ": "
 
 
 symbolSvg : String -> String
