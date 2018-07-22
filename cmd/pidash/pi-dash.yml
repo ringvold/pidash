@@ -1,0 +1,11 @@
+lines:
+  - name: 'Storo sør'
+    id: 3012122
+    direction: up
+  - name: 'Grefsenveien nord'
+    id: 3010443
+    direction: up
+  - name: 'Grefsenveien sør'
+    id: 3010443
+    direction: down
+weatherUrl: https://www.yr.no/sted/Norge/Oslo/Oslo/Storo/forecast.xml
