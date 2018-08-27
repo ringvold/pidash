@@ -3,7 +3,7 @@ module View.Weather exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Date
+import Time
 import Msg exposing (..)
 import Data.Weather exposing (Forecast)
 
@@ -31,10 +31,10 @@ timePeriod : Forecast -> String
 timePeriod forecast =
     let
         from =
-            String.padLeft 2 '0' <| toString <| Date.hour forecast.from
+            String.padLeft 2 '0' <| String.fromInt <| Time.toHour Time.utc forecast.from
 
         to =
-            String.padLeft 2 '0' <| toString <| Date.hour forecast.to
+            String.padLeft 2 '0' <| String.fromInt <| Time.toHour Time.utc forecast.to
     in
         "kl. " ++ from ++ "-" ++ to ++ ": "
 

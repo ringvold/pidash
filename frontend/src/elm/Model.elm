@@ -1,6 +1,6 @@
 module Model exposing (Model, ActivePeriodStatus(..), init)
 
-import Time exposing (Time, second)
+import Time
 
 
 --import Date
@@ -17,7 +17,7 @@ import Data.Weather exposing (Forecast, Symbol)
 
 type alias Model =
     { lineStops : WebData (List LineStop)
-    , currentTime : Maybe Time.Time
+    , currentTime : Maybe Time.Posix
     , activePeriod : ActivePeriodStatus
     , forecasts : WebData (List Forecast)
     }
@@ -25,11 +25,11 @@ type alias Model =
 
 type ActivePeriodStatus
     = Inactive
-    | Active Time
+    | Active Time.Posix
 
 
-init : ( Model, Cmd Msg )
-init =
+init : flags -> ( Model, Cmd Msg )
+init flags =
     let
         lineStops =
             Loading
@@ -41,4 +41,4 @@ init =
             , forecasts = Loading
             }
     in
-        model ! [ getStops, getForecast ]
+        ( model, Cmd.batch [ getStops, getForecast ] )

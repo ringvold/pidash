@@ -1,12 +1,12 @@
 module View exposing (..)
 
+import Http
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Lazy exposing (lazy2)
 import View.Weather
 import RemoteData exposing (WebData)
-import Http
 import Msg exposing (..)
 import Model exposing (Model, ActivePeriodStatus(..), init)
 import View.Transit as Transit
@@ -81,4 +81,23 @@ viewLineStops model =
             div [] [ h2 [ class "text-center" ] [ text "LOADING STOPS!1!" ] ]
 
         RemoteData.Failure err ->
-            div [] [ text <| toString err ]
+            div [] [ text <| errToString err ]
+
+
+errToString : Http.Error -> String
+errToString error =
+    case error of
+        Http.BadUrl err ->
+            "BadUrl " ++ err
+
+        Http.Timeout ->
+            "Timeout"
+
+        Http.NetworkError ->
+            "NetworkError"
+
+        Http.BadStatus res ->
+            "BadStatus " ++ (String.fromInt res.status.code) ++ ": " ++ res.status.message
+
+        Http.BadPayload string res ->
+            "BadPayload " ++ string ++ ": " ++ res.body

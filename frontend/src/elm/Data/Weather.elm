@@ -1,14 +1,15 @@
 module Data.Weather exposing (Forecast, Symbol, decodeForecast)
 
+import Time
 import Json.Decode as Decode exposing (Decoder)
-import Date exposing (Date)
+import Json.Decode.Extra as JDE
 
 
 type alias Forecast =
     { temperature : String
     , symbol : Symbol
-    , from : Date
-    , to : Date
+    , from : Time.Posix
+    , to : Time.Posix
     }
 
 
@@ -26,20 +27,15 @@ decodeForecast =
             (Decode.map4 Forecast
                 (Decode.field "Temperature" decodeTemperature)
                 (Decode.field "Symbol" decodeSymbol)
-                (Decode.field "FromTime" (Decode.map toDate Decode.string))
-                (Decode.field "ToTime" (Decode.map toDate Decode.string))
+                (Decode.field "FromTime" JDE.datetime)
+                (Decode.field "ToTime" JDE.datetime)
             )
         )
 
 
-toDate : String -> Date
-toDate dateTimeString =
-    Date.fromString dateTimeString |> Result.withDefault (Date.fromTime 0)
-
-
 decodeTemperature : Decoder String
 decodeTemperature =
-    Decode.map toString (Decode.at [ "Value" ] Decode.int)
+    Decode.map String.fromInt (Decode.at [ "Value" ] Decode.int)
 
 
 decodeSymbol : Decoder Symbol

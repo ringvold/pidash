@@ -1,10 +1,10 @@
 module View.Transit exposing (..)
 
+import Http
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Date exposing (Date, fromTime)
-import Date.Extra as Date exposing (Interval(..))
-import Time exposing (Time, second)
+import Date exposing (Date)
+import Time exposing (Posix)
 import RemoteData exposing (RemoteData(..))
 import Msg exposing (..)
 import Data.VehicleArrivalTime exposing (..)
@@ -15,13 +15,13 @@ import Data.Direction exposing (Direction(..), directionToComparable)
 -- LINESTOP VIEW
 
 
-viewStops : List LineStop -> Maybe Time -> Html Msg
+viewStops : List LineStop -> Maybe Posix -> Html Msg
 viewStops lineStops currentTime =
     List.map (\ls -> viewDepartures ls currentTime) lineStops
         |> div [ class "lineStops row" ]
 
 
-viewDepartures : LineStop -> Maybe Time -> Html Msg
+viewDepartures : LineStop -> Maybe Posix -> Html Msg
 viewDepartures lineStop currentTime =
     case lineStop.departures of
         NotAsked ->
@@ -39,7 +39,7 @@ viewDepartures lineStop currentTime =
         Failure err ->
             div [ class "departures col-sm-4" ]
                 [ h2 [] [ text lineStop.name ]
-                , viewMessage ("Error: " ++ toString err) "glyphicon-exclamation-sign"
+                , viewMessage ("Error: " ++ errToString err) "glyphicon-exclamation-sign"
                 ]
 
         Success departures ->
@@ -56,6 +56,25 @@ viewDepartures lineStop currentTime =
                     |> div [ class "departures col-sm-4" ]
 
 
+errToString : Http.Error -> String
+errToString error =
+    case error of
+        Http.BadUrl err ->
+            "BadUrl " ++ err
+
+        Http.Timeout ->
+            "Timeout"
+
+        Http.NetworkError ->
+            "NetworkError"
+
+        Http.BadStatus res ->
+            "BadStatus " ++ (String.fromInt res.status.code) ++ ": " ++ res.status.message
+
+        Http.BadPayload string res ->
+            "BadPayload " ++ string ++ ": " ++ res.body
+
+
 viewMessage : String -> String -> Html Msg
 viewMessage message icon =
     div [ class "message" ]
@@ -64,7 +83,7 @@ viewMessage message icon =
         ]
 
 
-viewDeparture : VehicleArrivalTime -> Maybe Time -> Html Msg
+viewDeparture : VehicleArrivalTime -> Maybe Posix -> Html Msg
 viewDeparture departure currentTime =
     let
         timeUntilArrival =
@@ -74,7 +93,7 @@ viewDeparture departure currentTime =
 
                 Just theTime ->
                     departure.expectedArrivalTime
-                        |> getTimeUntilArrival (Date.fromTime theTime)
+                        |> getTimeUntilArrival theTime
                         |> text
     in
         div
@@ -85,16 +104,24 @@ viewDeparture departure currentTime =
             ]
 
 
-getTimeUntilArrival : Date -> Date -> String
+getTimeUntilArrival : Posix -> Posix -> String
 getTimeUntilArrival currentTime arrivalTime =
     let
         timeUntilArrival =
-            toString <| Date.diff Minute currentTime arrivalTime
+            diff currentTime arrivalTime
     in
-        if "0" == timeUntilArrival then
+        if 0 == timeUntilArrival then
             "Nå"
         else
-            timeUntilArrival ++ " min"
+            String.fromInt (timeUntilArrival * msPerMinute) ++ " min"
+
+
+msPerMinute =
+    60 * 1000
+
+
+diff time1 time2 =
+    Time.posixToMillis time2 - Time.posixToMillis time1
 
 
 departureName : VehicleArrivalTime -> String

@@ -1,8 +1,9 @@
 module Data.VehicleArrivalTime exposing (..)
 
-import Date exposing (Date)
+import Time
 import Json.Decode as Decode exposing (Decoder, decodeValue, succeed, string, int, field)
-import Json.Decode.Extra exposing ((|:), date)
+import Json.Decode.Pipeline as JDP
+import Json.Decode.Extra as JDE
 import Data.Direction exposing (Direction, decodeDirection)
 
 
@@ -11,7 +12,7 @@ type alias VehicleArrivalTime =
     , publishedLineName : String
     , vehicleMode : Int
     , direction : Direction
-    , expectedArrivalTime : Date
+    , expectedArrivalTime : Time.Posix
     , lineId : String
     }
 
@@ -23,10 +24,15 @@ decodeArrivals =
 
 vehicleArrivalTime : Decode.Decoder VehicleArrivalTime
 vehicleArrivalTime =
-    succeed VehicleArrivalTime
-        |: (field "destinationName" string)
-        |: (field "publishedLineName" string)
-        |: (field "vehicleMode" int)
-        |: (field "directionRef" int |> Decode.andThen decodeDirection)
-        |: (field "expectedArrivalTime" date)
-        |: (field "lineId" string)
+    Decode.succeed VehicleArrivalTime
+        |> JDP.required "destinationName" string
+        |> JDP.required "publishedLineName" string
+        |> JDP.required "vehicleMode" int
+        |> JDP.required "directionRef" direction
+        |> JDP.required "expectedArrivalTime" JDE.datetime
+        |> JDP.required "lineId" string
+
+
+direction : Decoder Direction
+direction =
+    Decode.int |> Decode.andThen decodeDirection

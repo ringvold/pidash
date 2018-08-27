@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Html
+import Browser
 import Msg
 import Model exposing (Model, init)
 import Update exposing (update)
@@ -12,9 +12,9 @@ import Msg exposing (Msg)
 -- MAIN
 
 
-main : Program Never Model Msg
+main : Program String Model Msg
 main =
-    Html.program
+    Browser.element
         { init = init
         , view = view
         , update = update
