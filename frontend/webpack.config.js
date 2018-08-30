@@ -71,7 +71,7 @@ if (TARGET_ENV === 'development') {
         {
           test: /\.elm$/,
           exclude: [/elm-stuff/, /node_modules/],
-          use: 'elm-hot!elm-webpack?verbose=true&warn=true&debug=true'
+          use: 'elm-webpack-loader'
         },
         {
           test: /\.(css|scss)$/,
@@ -81,7 +81,12 @@ if (TARGET_ENV === 'development') {
           }),
         }
       ]
-    }
+    },
+
+    plugins: [
+    new ExtractTextPlugin('static/css/[name]-[hash].css', {
+        allChunks: true
+      })]
   });
 }
 
