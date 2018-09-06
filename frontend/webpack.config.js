@@ -18,10 +18,10 @@ var outputFilename =
 
 // common webpack config
 var commonConfig = {
+  mode: 'development',
   output: {
     path: outputPath,
     filename: `static/js/${outputFilename}`
-    // publicPath: '/'
   },
 
   resolve: {
@@ -44,7 +44,7 @@ var commonConfig = {
       inject: 'body',
       filename: 'index.html'
     })
-  ],
+  ]
 };
 
 // additional webpack settings for local env (when invoked by 'npm start')
@@ -53,7 +53,9 @@ if (TARGET_ENV === 'development') {
 
   module.exports = merge(commonConfig, {
     entry: ['webpack-dev-server/client?http://localhost:8080', entryPath],
-    mode: 'development',
+    output: {
+      publicPath: '/'
+    },
     devServer: {
       // serve index.html in place of 404 responses
       historyApiFallback: true,
@@ -71,22 +73,28 @@ if (TARGET_ENV === 'development') {
         {
           test: /\.elm$/,
           exclude: [/elm-stuff/, /node_modules/],
-          use: 'elm-webpack-loader'
+          use: {
+            loader: 'elm-webpack-loader',
+            options: {
+              debug: true
+            }
+          }
         },
         {
           test: /\.(css|scss)$/,
           use: ExtractTextPlugin.extract({
             fallback: 'style-loader',
-            use: ['css-loader', 'postcss-loader', 'sass-loader'],
-          }),
+            use: ['css-loader', 'postcss-loader', 'sass-loader']
+          })
         }
       ]
     },
 
     plugins: [
-    new ExtractTextPlugin('static/css/[name]-[hash].css', {
+      new ExtractTextPlugin('static/css/[name]-[hash].css', {
         allChunks: true
-      })]
+      })
+    ]
   });
 }
 
@@ -108,8 +116,8 @@ if (TARGET_ENV === 'production') {
           test: /\.(css|scss)$/,
           use: ExtractTextPlugin.extract({
             fallback: 'style-loader',
-            use: ['css-loader', 'postcss-loader', 'sass-loader'],
-          }),
+            use: ['css-loader', 'postcss-loader', 'sass-loader']
+          })
         }
       ]
     },
@@ -127,14 +135,13 @@ if (TARGET_ENV === 'production') {
         {
           from: 'src/static/symbol/',
           to: 'static/symbol/'
-        },
+        }
       ]),
 
       // extract CSS into a separate file
       new ExtractTextPlugin('static/css/[name]-[hash].css', {
         allChunks: true
-      }),
-
+      })
     ]
   });
 }

@@ -113,15 +113,16 @@ getTimeUntilArrival currentTime arrivalTime =
         if 0 == timeUntilArrival then
             "Nå"
         else
-            String.fromInt (timeUntilArrival * msPerMinute) ++ " min"
+            String.fromInt timeUntilArrival ++ " min"
 
 
-msPerMinute =
-    60 * 1000
+type alias Milliseconds =
+    Int
 
 
+diff : Posix -> Posix -> Milliseconds
 diff time1 time2 =
-    Time.posixToMillis time2 - Time.posixToMillis time1
+    (Time.posixToMillis time2) // 60 // 1000 - (Time.posixToMillis time1) // 60 // 1000
 
 
 departureName : VehicleArrivalTime -> String

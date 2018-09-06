@@ -3,6 +3,7 @@ module Data.Weather exposing (Forecast, Symbol, decodeForecast)
 import Time
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Extra as JDE
+import Iso8601
 
 
 type alias Forecast =
@@ -27,10 +28,25 @@ decodeForecast =
             (Decode.map4 Forecast
                 (Decode.field "Temperature" decodeTemperature)
                 (Decode.field "Symbol" decodeSymbol)
-                (Decode.field "FromTime" JDE.datetime)
-                (Decode.field "ToTime" JDE.datetime)
+                (Decode.field "FromTime" datetime)
+                (Decode.field "ToTime" datetime)
             )
         )
+
+
+datetime : Decoder Time.Posix
+datetime =
+    Decode.andThen
+        (\dateString ->
+            -- Adding offset to datetime to be valid ISO-8610 as this is missing from yr.no forecast
+            case Iso8601.toTime <| dateString ++ "+02:00" of
+                Ok v ->
+                    Decode.succeed v
+
+                Err _ ->
+                    Decode.fail "Expecting an ISO-8601 formatted date+time string"
+        )
+        Decode.string
 
 
 decodeTemperature : Decoder String
