@@ -1,4 +1,4 @@
-module Data.Direction exposing (..)
+module Data.Direction exposing (Direction(..), convertDirection, decodeDirection, directionToComparable, stringToDirection)
 
 import Json.Decode as Decode
 

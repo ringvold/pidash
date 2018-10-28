@@ -1,16 +1,17 @@
-module View exposing (..)
+module View exposing (errToString, view, viewClosestForecast, viewLineStops)
 
+import Data.Weather exposing (Forecast)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Lazy exposing (lazy2)
-import View.Weather
-import RemoteData exposing (WebData)
 import Http
+import Model exposing (ActivePeriodStatus(..), Model, init)
 import Msg exposing (..)
-import Model exposing (Model, ActivePeriodStatus(..), init)
+import RemoteData exposing (WebData)
 import View.Transit as Transit
-import Data.Weather exposing (Forecast)
+import View.Weather
+
 
 
 -- VIEW
@@ -27,15 +28,15 @@ view model =
                 Inactive ->
                     "label label-default"
     in
-        div []
-            [ div [ class "header container-fluid" ]
-                [ h1 [ class "title" ]
-                    [ span [ class activeIndicator ] [ text "Avganger" ]
-                    ]
-                , viewClosestForecast model.forecasts
+    div []
+        [ div [ class "header container-fluid" ]
+            [ h1 [ class "title" ]
+                [ span [ class activeIndicator ] [ text "Avganger" ]
                 ]
-            , div [ class "container-fluid", onClick RefreshTriggered ] [ viewLineStops model ]
+            , viewClosestForecast model.forecasts
             ]
+        , div [ class "container-fluid", onClick RefreshTriggered ] [ viewLineStops model ]
+        ]
 
 
 viewClosestForecast : WebData (List Forecast) -> Html Msg
@@ -44,28 +45,28 @@ viewClosestForecast forecasts =
         wrapper =
             div [ class "quick-forecast", onClick ForecastRequested ]
     in
-        case forecasts of
-            RemoteData.Success casts ->
-                List.take 2 casts
-                    |> List.map View.Weather.viewForecast
-                    |> wrapper
+    case forecasts of
+        RemoteData.Success casts ->
+            List.take 2 casts
+                |> List.map View.Weather.viewForecast
+                |> wrapper
 
-            RemoteData.Failure err ->
-                case err of
-                    Http.BadPayload error _ ->
-                        wrapper
-                            [ text error
-                            ]
+        RemoteData.Failure err ->
+            case err of
+                Http.BadPayload error _ ->
+                    wrapper
+                        [ text error
+                        ]
 
-                    _ ->
-                        wrapper
-                            [ text "err"
-                            ]
+                _ ->
+                    wrapper
+                        [ text "err"
+                        ]
 
-            _ ->
-                wrapper
-                    [ text "-"
-                    ]
+        _ ->
+            wrapper
+                [ text "-"
+                ]
 
 
 viewLineStops : Model -> Html Msg
@@ -81,4 +82,23 @@ viewLineStops model =
             div [] [ h2 [ class "text-center" ] [ text "LOADING STOPS!1!" ] ]
 
         RemoteData.Failure err ->
-            div [] [ text <| toString err ]
+            div [] [ text <| errToString err ]
+
+
+errToString : Http.Error -> String
+errToString error =
+    case error of
+        Http.BadUrl err ->
+            "BadUrl " ++ err
+
+        Http.Timeout ->
+            "Timeout"
+
+        Http.NetworkError ->
+            "NetworkError"
+
+        Http.BadStatus res ->
+            "BadStatus " ++ String.fromInt res.status.code ++ ": " ++ res.status.message
+
+        Http.BadPayload string res ->
+            "BadPayload " ++ string ++ ": " ++ res.body

@@ -1,13 +1,14 @@
 module Update exposing (update)
 
-import Task exposing (perform)
-import Time exposing (Time, second)
-import RemoteData exposing (WebData, RemoteData(..), succeed)
+import Api exposing (getDeparture, getForecast)
+import Data.Direction exposing (Direction(..), directionToComparable)
+import Data.LineStop exposing (Departures, LineStop)
 import Model exposing (..)
 import Msg exposing (Msg(..))
-import Api exposing (getDeparture, getForecast)
-import Data.LineStop exposing (LineStop, Departures)
-import Data.Direction exposing (Direction(..), directionToComparable)
+import RemoteData exposing (RemoteData(..), WebData, succeed)
+import Task exposing (perform)
+import Time
+
 
 
 -- UPDATE
@@ -17,53 +18,56 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NoOp ->
-            model ! []
+            ( model, Cmd.none )
 
         RefreshTriggered ->
             let
                 newModel =
                     setForecastLoading model
             in
-                { newModel | lineStops = setLoading model |> Success }
-                    ! [ Task.perform ActivePeriodStartReceived Time.now, fetchDepartures model, getForecast ]
+            ( { newModel | lineStops = setLoading model |> Success }
+            , Cmd.batch [ Task.perform ActivePeriodStartReceived Time.now, fetchDepartures model, getForecast ]
+            )
 
         TimeRequested ->
-            model ! [ Task.perform TimeReceived Time.now ]
+            ( model, Cmd.batch [ Task.perform TimeReceived Time.now ] )
 
         TimeReceived time ->
-            { model | currentTime = Just time } ! []
+            ( { model | currentTime = Just time }, Cmd.none )
 
         DeparturesRequested ->
-            { model | lineStops = setLoading model |> Success }
-                ! [ fetchDepartures model ]
+            ( { model | lineStops = setLoading model |> Success }
+            , Cmd.batch [ fetchDepartures model ]
+            )
 
         DeparturesReceived id direction departures ->
-            updateLineStops model id direction departures ! []
+            ( updateLineStops model id direction departures, Cmd.none )
 
         ActivePeriodStartReceived time ->
-            { model | activePeriod = Active time }
-                ! []
+            ( { model | activePeriod = Active time }, Cmd.none )
 
         ActivePeriodDeactivationTriggered ->
-            { model | activePeriod = Inactive } ! []
+            ( { model | activePeriod = Inactive }, Cmd.none )
 
         StopsRequested ->
-            { model | lineStops = Loading } ! []
+            ( { model | lineStops = Loading }, Cmd.none )
 
         StopsReceived stops ->
-            { model | lineStops = stops }
-                ! (stops
+            ( { model | lineStops = stops }
+            , Cmd.batch
+                (stops
                     |> unwrapLineStop
                     |> List.map getDeparture
                     |> List.append [ Task.perform TimeReceived Time.now ]
                     |> List.append [ Task.perform ActivePeriodStartReceived Time.now ]
-                  )
+                )
+            )
 
         ForecastRequested ->
-            setForecastLoading model ! [ getForecast ]
+            ( setForecastLoading model, Cmd.batch [ getForecast ] )
 
         ForecastReceived forecasts ->
-            { model | forecasts = forecasts } ! []
+            ( { model | forecasts = forecasts }, Cmd.none )
 
 
 
@@ -102,12 +106,14 @@ updateStop id departures direction lineStop =
         allDirections =
             directionToComparable Unknown
     in
-        if lineStop.id == id && lineStopDirection == departureDirection then
-            { lineStop | departures = departures }
-        else if lineStop.id == id && lineStopDirection == allDirections then
-            { lineStop | departures = departures }
-        else
-            lineStop
+    if lineStop.id == id && lineStopDirection == departureDirection then
+        { lineStop | departures = departures }
+
+    else if lineStop.id == id && lineStopDirection == allDirections then
+        { lineStop | departures = departures }
+
+    else
+        lineStop
 
 
 setLoading : Model -> List LineStop

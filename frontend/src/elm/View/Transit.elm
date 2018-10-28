@@ -1,27 +1,28 @@
-module View.Transit exposing (..)
+module View.Transit exposing (Milliseconds, departureName, diff, errToString, getDeparturesByDirection, getTimeUntilArrival, hasDirection, viewDeparture, viewDepartures, viewMessage, viewStops)
 
+import Data.Direction exposing (Direction(..), directionToComparable)
+import Data.LineStop exposing (..)
+import Data.VehicleArrivalTime exposing (..)
+import Date exposing (Date)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Date exposing (Date, fromTime)
-import Date.Extra as Date exposing (Interval(..))
-import Time exposing (Time, second)
-import RemoteData exposing (RemoteData(..))
+import Http
 import Msg exposing (..)
-import Data.VehicleArrivalTime exposing (..)
-import Data.LineStop exposing (..)
-import Data.Direction exposing (Direction(..), directionToComparable)
+import RemoteData exposing (RemoteData(..))
+import Time exposing (Posix)
+
 
 
 -- LINESTOP VIEW
 
 
-viewStops : List LineStop -> Maybe Time -> Html Msg
+viewStops : List LineStop -> Maybe Posix -> Html Msg
 viewStops lineStops currentTime =
     List.map (\ls -> viewDepartures ls currentTime) lineStops
         |> div [ class "lineStops row" ]
 
 
-viewDepartures : LineStop -> Maybe Time -> Html Msg
+viewDepartures : LineStop -> Maybe Posix -> Html Msg
 viewDepartures lineStop currentTime =
     case lineStop.departures of
         NotAsked ->
@@ -39,7 +40,7 @@ viewDepartures lineStop currentTime =
         Failure err ->
             div [ class "departures col-sm-4" ]
                 [ h2 [] [ text lineStop.name ]
-                , viewMessage ("Error: " ++ toString err) "glyphicon-exclamation-sign"
+                , viewMessage ("Error: " ++ errToString err) "glyphicon-exclamation-sign"
                 ]
 
         Success departures ->
@@ -48,12 +49,32 @@ viewDepartures lineStop currentTime =
                     [ h2 [] [ text lineStop.name ]
                     , text "Ingen avganger akkurat nå"
                     ]
+
             else
                 departures
                     |> getDeparturesByDirection lineStop.direction
                     |> List.map (\departure -> viewDeparture departure currentTime)
                     |> List.append [ h2 [] [ text lineStop.name ] ]
                     |> div [ class "departures col-sm-4" ]
+
+
+errToString : Http.Error -> String
+errToString error =
+    case error of
+        Http.BadUrl err ->
+            "BadUrl " ++ err
+
+        Http.Timeout ->
+            "Timeout"
+
+        Http.NetworkError ->
+            "NetworkError"
+
+        Http.BadStatus res ->
+            "BadStatus " ++ String.fromInt res.status.code ++ ": " ++ res.status.message
+
+        Http.BadPayload string res ->
+            "BadPayload " ++ string ++ ": " ++ res.body
 
 
 viewMessage : String -> String -> Html Msg
@@ -64,7 +85,7 @@ viewMessage message icon =
         ]
 
 
-viewDeparture : VehicleArrivalTime -> Maybe Time -> Html Msg
+viewDeparture : VehicleArrivalTime -> Maybe Posix -> Html Msg
 viewDeparture departure currentTime =
     let
         timeUntilArrival =
@@ -74,27 +95,37 @@ viewDeparture departure currentTime =
 
                 Just theTime ->
                     departure.expectedArrivalTime
-                        |> getTimeUntilArrival (Date.fromTime theTime)
+                        |> getTimeUntilArrival theTime
                         |> text
     in
-        div
-            [ class "departure" ]
-            [ h3 []
-                [ timeUntilArrival ]
-            , div [] [ text <| departureName departure ]
-            ]
+    div
+        [ class "departure" ]
+        [ h3 []
+            [ timeUntilArrival ]
+        , div [] [ text <| departureName departure ]
+        ]
 
 
-getTimeUntilArrival : Date -> Date -> String
+getTimeUntilArrival : Posix -> Posix -> String
 getTimeUntilArrival currentTime arrivalTime =
     let
         timeUntilArrival =
-            toString <| Date.diff Minute currentTime arrivalTime
+            diff currentTime arrivalTime
     in
-        if "0" == timeUntilArrival then
-            "Nå"
-        else
-            timeUntilArrival ++ " min"
+    if 0 == timeUntilArrival then
+        "Nå"
+
+    else
+        String.fromInt timeUntilArrival ++ " min"
+
+
+type alias Milliseconds =
+    Int
+
+
+diff : Posix -> Posix -> Milliseconds
+diff time1 time2 =
+    Time.posixToMillis time2 // 60 // 1000 - Time.posixToMillis time1 // 60 // 1000
 
 
 departureName : VehicleArrivalTime -> String
@@ -121,4 +152,4 @@ hasDirection direction departure =
         unknownDirections =
             directionToComparable Unknown
     in
-        departureDirection == unknownDirections || departureDirection == lineStopDirection
+    departureDirection == unknownDirections || departureDirection == lineStopDirection
