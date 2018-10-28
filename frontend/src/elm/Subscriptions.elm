@@ -1,8 +1,9 @@
 module Subscriptions exposing (subscriptions)
 
-import Time
-import Model exposing (Model, ActivePeriodStatus(..))
+import Model exposing (ActivePeriodStatus(..), Model)
 import Msg exposing (Msg(..))
+import Time
+
 
 
 --  SUBSCRIPTIONS
@@ -20,8 +21,9 @@ checkIfActivePeriod model time =
             NoOp
 
         Active startTime ->
-            if (Time.posixToMillis startTime) + (5 * minute) > Time.posixToMillis time then
+            if Time.posixToMillis startTime + (5 * minute) > Time.posixToMillis time then
                 DeparturesRequested
+
             else
                 ActivePeriodDeactivationTriggered
 

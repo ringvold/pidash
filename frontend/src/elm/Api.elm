@@ -1,11 +1,12 @@
-module Api exposing (getDeparture, getStops, getForecast)
+module Api exposing (getDeparture, getForecast, getStops)
 
-import Http
-import RemoteData exposing (WebData, RemoteData(..))
-import Msg exposing (Msg(..))
-import Data.VehicleArrivalTime exposing (..)
 import Data.LineStop exposing (..)
+import Data.VehicleArrivalTime exposing (..)
 import Data.Weather exposing (decodeForecast)
+import Http
+import Msg exposing (Msg(..))
+import RemoteData exposing (RemoteData(..), WebData)
+
 
 
 -- API/HTTP
@@ -26,9 +27,9 @@ getDeparture stop =
         url =
             "/ruter/sanntid/" ++ stop.id
     in
-        Http.get url decodeArrivals
-            |> RemoteData.sendRequest
-            |> Cmd.map (DeparturesReceived stop.id stop.direction)
+    Http.get url decodeArrivals
+        |> RemoteData.sendRequest
+        |> Cmd.map (DeparturesReceived stop.id stop.direction)
 
 
 getForecast : Cmd Msg

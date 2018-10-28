@@ -1,9 +1,9 @@
 module Data.Weather exposing (Forecast, Symbol, decodeForecast)
 
-import Time
+import Iso8601
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Extra as JDE
-import Iso8601
+import Time
 
 
 type alias Forecast =

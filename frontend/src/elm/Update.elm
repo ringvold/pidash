@@ -1,13 +1,14 @@
 module Update exposing (update)
 
-import Task exposing (perform)
-import Time
-import RemoteData exposing (WebData, RemoteData(..), succeed)
+import Api exposing (getDeparture, getForecast)
+import Data.Direction exposing (Direction(..), directionToComparable)
+import Data.LineStop exposing (Departures, LineStop)
 import Model exposing (..)
 import Msg exposing (Msg(..))
-import Api exposing (getDeparture, getForecast)
-import Data.LineStop exposing (LineStop, Departures)
-import Data.Direction exposing (Direction(..), directionToComparable)
+import RemoteData exposing (RemoteData(..), WebData, succeed)
+import Task exposing (perform)
+import Time
+
 
 
 -- UPDATE
@@ -24,9 +25,9 @@ update msg model =
                 newModel =
                     setForecastLoading model
             in
-                ( { newModel | lineStops = setLoading model |> Success }
-                , Cmd.batch [ Task.perform ActivePeriodStartReceived Time.now, fetchDepartures model, getForecast ]
-                )
+            ( { newModel | lineStops = setLoading model |> Success }
+            , Cmd.batch [ Task.perform ActivePeriodStartReceived Time.now, fetchDepartures model, getForecast ]
+            )
 
         TimeRequested ->
             ( model, Cmd.batch [ Task.perform TimeReceived Time.now ] )
@@ -105,12 +106,14 @@ updateStop id departures direction lineStop =
         allDirections =
             directionToComparable Unknown
     in
-        if lineStop.id == id && lineStopDirection == departureDirection then
-            { lineStop | departures = departures }
-        else if lineStop.id == id && lineStopDirection == allDirections then
-            { lineStop | departures = departures }
-        else
-            lineStop
+    if lineStop.id == id && lineStopDirection == departureDirection then
+        { lineStop | departures = departures }
+
+    else if lineStop.id == id && lineStopDirection == allDirections then
+        { lineStop | departures = departures }
+
+    else
+        lineStop
 
 
 setLoading : Model -> List LineStop

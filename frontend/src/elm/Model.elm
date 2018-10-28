@@ -1,15 +1,14 @@
-module Model exposing (Model, ActivePeriodStatus(..), init)
-
-import Time
-
+module Model exposing (ActivePeriodStatus(..), Model, init)
 
 --import Date
 
-import RemoteData exposing (WebData, RemoteData(..))
+import Api exposing (getDeparture, getForecast, getStops)
 import Data.LineStop exposing (..)
-import Msg exposing (..)
-import Api exposing (getDeparture, getStops, getForecast)
 import Data.Weather exposing (Forecast, Symbol)
+import Msg exposing (..)
+import RemoteData exposing (RemoteData(..), WebData)
+import Time
+
 
 
 -- MODEL
@@ -41,4 +40,4 @@ init flags =
             , forecasts = Loading
             }
     in
-        ( model, Cmd.batch [ getStops, getForecast ] )
+    ( model, Cmd.batch [ getStops, getForecast ] )

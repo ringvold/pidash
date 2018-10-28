@@ -1,10 +1,10 @@
-module Data.VehicleArrivalTime exposing (..)
+module Data.VehicleArrivalTime exposing (VehicleArrivalTime, decodeArrivals, direction, vehicleArrivalTime)
 
-import Time
-import Json.Decode as Decode exposing (Decoder, decodeValue, succeed, string, int, field)
-import Json.Decode.Pipeline as JDP
-import Json.Decode.Extra as JDE
 import Data.Direction exposing (Direction, decodeDirection)
+import Json.Decode as Decode exposing (Decoder, decodeValue, field, int, string, succeed)
+import Json.Decode.Extra as JDE
+import Json.Decode.Pipeline as JDP
+import Time
 
 
 type alias VehicleArrivalTime =

@@ -1,15 +1,16 @@
-module View.Transit exposing (..)
+module View.Transit exposing (Milliseconds, departureName, diff, errToString, getDeparturesByDirection, getTimeUntilArrival, hasDirection, viewDeparture, viewDepartures, viewMessage, viewStops)
 
-import Http
+import Data.Direction exposing (Direction(..), directionToComparable)
+import Data.LineStop exposing (..)
+import Data.VehicleArrivalTime exposing (..)
+import Date exposing (Date)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Date exposing (Date)
-import Time exposing (Posix)
-import RemoteData exposing (RemoteData(..))
+import Http
 import Msg exposing (..)
-import Data.VehicleArrivalTime exposing (..)
-import Data.LineStop exposing (..)
-import Data.Direction exposing (Direction(..), directionToComparable)
+import RemoteData exposing (RemoteData(..))
+import Time exposing (Posix)
+
 
 
 -- LINESTOP VIEW
@@ -48,6 +49,7 @@ viewDepartures lineStop currentTime =
                     [ h2 [] [ text lineStop.name ]
                     , text "Ingen avganger akkurat nå"
                     ]
+
             else
                 departures
                     |> getDeparturesByDirection lineStop.direction
@@ -69,7 +71,7 @@ errToString error =
             "NetworkError"
 
         Http.BadStatus res ->
-            "BadStatus " ++ (String.fromInt res.status.code) ++ ": " ++ res.status.message
+            "BadStatus " ++ String.fromInt res.status.code ++ ": " ++ res.status.message
 
         Http.BadPayload string res ->
             "BadPayload " ++ string ++ ": " ++ res.body
@@ -96,12 +98,12 @@ viewDeparture departure currentTime =
                         |> getTimeUntilArrival theTime
                         |> text
     in
-        div
-            [ class "departure" ]
-            [ h3 []
-                [ timeUntilArrival ]
-            , div [] [ text <| departureName departure ]
-            ]
+    div
+        [ class "departure" ]
+        [ h3 []
+            [ timeUntilArrival ]
+        , div [] [ text <| departureName departure ]
+        ]
 
 
 getTimeUntilArrival : Posix -> Posix -> String
@@ -110,10 +112,11 @@ getTimeUntilArrival currentTime arrivalTime =
         timeUntilArrival =
             diff currentTime arrivalTime
     in
-        if 0 == timeUntilArrival then
-            "Nå"
-        else
-            String.fromInt timeUntilArrival ++ " min"
+    if 0 == timeUntilArrival then
+        "Nå"
+
+    else
+        String.fromInt timeUntilArrival ++ " min"
 
 
 type alias Milliseconds =
@@ -122,7 +125,7 @@ type alias Milliseconds =
 
 diff : Posix -> Posix -> Milliseconds
 diff time1 time2 =
-    (Time.posixToMillis time2) // 60 // 1000 - (Time.posixToMillis time1) // 60 // 1000
+    Time.posixToMillis time2 // 60 // 1000 - Time.posixToMillis time1 // 60 // 1000
 
 
 departureName : VehicleArrivalTime -> String
@@ -149,4 +152,4 @@ hasDirection direction departure =
         unknownDirections =
             directionToComparable Unknown
     in
-        departureDirection == unknownDirections || departureDirection == lineStopDirection
+    departureDirection == unknownDirections || departureDirection == lineStopDirection

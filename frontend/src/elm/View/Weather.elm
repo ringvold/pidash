@@ -1,11 +1,11 @@
-module View.Weather exposing (..)
+module View.Weather exposing (symbolSvg, timePeriod, viewForecast, viewForecasts)
 
+import Data.Weather exposing (Forecast)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Time
 import Msg exposing (..)
-import Data.Weather exposing (Forecast)
+import Time
 
 
 viewForecasts : List Forecast -> List (Html Msg)
@@ -36,7 +36,7 @@ timePeriod forecast =
         to =
             String.padLeft 2 '0' <| String.fromInt <| Time.toHour Time.utc forecast.to
     in
-        "kl. " ++ from ++ "-" ++ to ++ ": "
+    "kl. " ++ from ++ "-" ++ to ++ ": "
 
 
 symbolSvg : String -> String

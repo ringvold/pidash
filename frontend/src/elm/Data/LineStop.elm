@@ -1,9 +1,9 @@
-module Data.LineStop exposing (..)
+module Data.LineStop exposing (Departures, LineStop, StopId, decodeStops)
 
+import Data.Direction exposing (Direction, decodeDirection)
+import Data.VehicleArrivalTime exposing (VehicleArrivalTime)
 import Json.Decode as Decode
 import RemoteData exposing (WebData)
-import Data.VehicleArrivalTime exposing (VehicleArrivalTime)
-import Data.Direction exposing (Direction, decodeDirection)
 
 
 type alias Departures =

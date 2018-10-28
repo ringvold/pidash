@@ -1,10 +1,11 @@
 module Msg exposing (Msg(..))
 
-import Time exposing (Posix)
-import RemoteData exposing (WebData)
-import Data.LineStop exposing (Departures, LineStop, StopId)
 import Data.Direction exposing (Direction)
+import Data.LineStop exposing (Departures, LineStop, StopId)
 import Data.Weather exposing (Forecast)
+import RemoteData exposing (WebData)
+import Time exposing (Posix)
+
 
 
 -- MSG
