@@ -60,6 +60,7 @@ if (TARGET_ENV === 'development') {
       // serve index.html in place of 404 responses
       historyApiFallback: true,
       contentBase: './src',
+      port: 8082,
       proxy: [
         {
           context: ['/weather', '/ruter'],
