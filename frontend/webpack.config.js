@@ -3,8 +3,10 @@ var webpack = require('webpack');
 var merge = require('webpack-merge');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var autoprefixer = require('autoprefixer');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var MiniCssExtractPlugin = require('mini-css-extract-plugin');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
+var UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+var OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 var entryPath = path.join(__dirname, 'src/static/index.js');
 var outputPath = path.join(__dirname, 'dist');
 
@@ -115,19 +117,33 @@ if (TARGET_ENV === 'production') {
         },
         {
           test: /\.(css|scss)$/,
-          use: ExtractTextPlugin.extract({
-            fallback: 'style-loader',
-            use: ['css-loader', 'postcss-loader', 'sass-loader']
-          })
+          use: [
+            MiniCssExtractPlugin.loader,
+            'css-loader',
+            {
+                loader: 'postcss-loader',
+                options: { plugins: [autoprefixer()] }
+            },
+            'sass-loader'
+          ]
         }
       ]
     },
 
     optimization: {
-      minimize: false
+      minimizer: [
+        new UglifyJsPlugin({
+            cache: true,
+            parallel: true,
+            sourceMap: true // set to true if you want JS source maps
+        }),
+        new OptimizeCSSAssetsPlugin({})
+      ]
     },
 
+
     plugins: [
+      new MiniCssExtractPlugin({ filename: 'static/css/[name]-[hash].css' }),
       new CopyWebpackPlugin([
         {
           from: 'src/static/img/',
@@ -138,11 +154,6 @@ if (TARGET_ENV === 'production') {
           to: 'static/symbol/'
         }
       ]),
-
-      // extract CSS into a separate file
-      new ExtractTextPlugin('static/css/[name]-[hash].css', {
-        allChunks: true
-      })
     ]
   });
 }
