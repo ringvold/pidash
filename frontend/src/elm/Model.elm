@@ -1,10 +1,13 @@
-module Model exposing (ActivePeriodStatus(..), Model, init)
+module Model exposing (ActivePeriodStatus(..), EnturResponse, Model, StopPlaces, init)
 
 --import Date
 
-import Api exposing (getDeparture, getForecast, getStops)
+import Api
 import Data.LineStop exposing (..)
+import Data.StopPlace exposing (Response)
 import Data.Weather exposing (Forecast, Symbol)
+import Dict exposing (Dict)
+import Graphql.Http
 import Msg exposing (..)
 import RemoteData exposing (RemoteData(..), WebData)
 import Time
@@ -19,7 +22,16 @@ type alias Model =
     , currentTime : Maybe Time.Posix
     , activePeriod : ActivePeriodStatus
     , forecasts : WebData (List Forecast)
+    , stopPlaces : StopPlaces
     }
+
+
+type alias EnturResponse =
+    RemoteData (Graphql.Http.Error Response) Response
+
+
+type alias StopPlaces =
+    Dict String EnturResponse
 
 
 type ActivePeriodStatus
@@ -30,14 +42,18 @@ type ActivePeriodStatus
 init : flags -> ( Model, Cmd Msg )
 init flags =
     let
-        lineStops =
-            Loading
-
         model =
-            { lineStops = lineStops
+            { lineStops = Loading
             , currentTime = Nothing
             , activePeriod = Inactive
             , forecasts = Loading
+            , stopPlaces = Dict.empty
             }
     in
-    ( model, Cmd.batch [ getStops, getForecast ] )
+    ( model
+    , Cmd.batch
+        [ Api.getStops
+        , Api.getForecast
+        , Api.getStopPlaces [ "NSR:StopPlace:58196", "NSR:StopPlace:58195", "Finnesikke" ]
+        ]
+    )

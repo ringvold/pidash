@@ -85,18 +85,21 @@ if (TARGET_ENV === 'development') {
         },
         {
           test: /\.(css|scss)$/,
-          use: ExtractTextPlugin.extract({
-            fallback: 'style-loader',
-            use: ['css-loader', 'postcss-loader', 'sass-loader']
-          })
+          use: [
+            MiniCssExtractPlugin.loader,
+            'css-loader',
+            {
+                loader: 'postcss-loader',
+                options: { plugins: [autoprefixer()] }
+            },
+            'sass-loader'
+          ]
         }
       ]
     },
 
     plugins: [
-      new ExtractTextPlugin('static/css/[name]-[hash].css', {
-        allChunks: true
-      })
+      new MiniCssExtractPlugin({ filename: 'static/css/[name]-[hash].css' }),
     ]
   });
 }

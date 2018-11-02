@@ -2,6 +2,17 @@
 # yarn lockfile v1
 
 
+"@dillonkearns/elm-graphql@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@dillonkearns/elm-graphql/-/elm-graphql-1.0.4.tgz#4e2fe468c1f4363199972efc91ba99482951a036"
+  integrity sha512-ztFfAGKrpqyvK3JAAMuwuxWAEtu8/T7528ClE7cLtPSRkgFnICLBzJPA+cbZhnVVe/h8Ys33cEt0luRdsWCjBQ==
+  dependencies:
+    elm-format "^0.8.0"
+    glob "^7.1.2"
+    graphql-request "^1.4.0"
+    minimist "^1.2.0"
+    request "^2.83.0"
+
 "@webassemblyjs/ast@1.7.10":
   version "1.7.10"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.7.10.tgz#0cfc61d61286240b72fc522cb755613699eea40a"
@@ -473,7 +484,7 @@ binary-extensions@^1.0.0:
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-1.12.0.tgz#c2d780f53d45bba8317a8902d4ceeaf3a6385b14"
   integrity sha512-DYWGk01lDcxeS/K9IHPGWfT8PsJmbXRtRd2Sx72Tnb8pcYZQFF1oSDb8hJtS1vhp212q1Rzi5dUf9+nq0o9UIg==
 
-"binary@>= 0.3.0 < 1":
+"binary@>= 0.3.0 < 1", binary@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/binary/-/binary-0.3.0.tgz#9f60553bc5ce8c3386f3b553cff47462adecaa79"
   integrity sha1-n2BVO8XOjDOG87VTz/R0Yq3sqnk=
@@ -490,6 +501,17 @@ binwrap@0.1.4:
     request-promise "^4.2.0"
     tar "^2.2.1"
     unzip "^0.1.11"
+
+binwrap@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/binwrap/-/binwrap-0.2.0.tgz#572d0f48c4e767d72d622f0b805ed7ce1db16f9a"
+  integrity sha512-HUspivC8zPE37KJQ0S4zsNHUpymzQBinmpdMoa+JwmB6Mi+p30ywVZJcillYpbQmiX2wLykaaDJxXmwZkbaZGA==
+  dependencies:
+    mustache "^2.3.0"
+    request "^2.87.0"
+    request-promise "^4.2.0"
+    tar "^2.2.1"
+    unzip-stream "^0.3.0"
 
 block-stream@*:
   version "0.0.9"
@@ -1170,6 +1192,14 @@ create-hmac@^1.1.0, create-hmac@^1.1.2, create-hmac@^1.1.4:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
+cross-fetch@2.2.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-2.2.2.tgz#a47ff4f7fc712daba8f6a695a11c948440d45723"
+  integrity sha1-pH/09/xxLauo9qaVoRyUhEDUVyM=
+  dependencies:
+    node-fetch "2.1.2"
+    whatwg-fetch "2.0.4"
+
 cross-spawn@4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-4.0.0.tgz#8254774ab4786b8c5b3cf4dfba66ce563932c252"
@@ -1698,6 +1728,13 @@ elliptic@^6.0.0:
     inherits "^2.0.1"
     minimalistic-assert "^1.0.0"
     minimalistic-crypto-utils "^1.0.0"
+
+elm-format@^0.8.0:
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/elm-format/-/elm-format-0.8.1.tgz#37796fc06b8460a6d76a054a1216d86d8481155e"
+  integrity sha512-uLcDICdmEoRBaCp3PobcvHtUej2RJFHRYfMd7i3CSH+RsajJYTdiPkviKIq823Kd4gfjQMpNajEyM1lLFez7+A==
+  dependencies:
+    binwrap "^0.2.0"
 
 elm-hot-webpack-loader@^1.0.0:
   version "1.0.2"
@@ -2352,6 +2389,13 @@ graceful-fs@~3.0.2:
   integrity sha1-dhPHeKGv6mLyXGMKCG1/Osu92Bg=
   dependencies:
     natives "^1.1.0"
+
+graphql-request@^1.4.0:
+  version "1.8.2"
+  resolved "https://registry.yarnpkg.com/graphql-request/-/graphql-request-1.8.2.tgz#398d10ae15c585676741bde3fc01d5ca948f8fbe"
+  integrity sha512-dDX2M+VMsxXFCmUX0Vo0TopIZIX4ggzOtiCsThgtrKR4niiaagsGTDIHj3fsOMFETpa064vzovI+4YV4QnMbcg==
+  dependencies:
+    cross-fetch "2.2.2"
 
 handle-thing@^1.2.5:
   version "1.2.5"
@@ -3588,6 +3632,11 @@ multicast-dns@^6.0.1:
     dns-packet "^1.3.1"
     thunky "^1.0.2"
 
+mustache@^2.3.0:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/mustache/-/mustache-2.3.2.tgz#a6d4d9c3f91d13359ab889a812954f9230a3d0c5"
+  integrity sha512-KpMNwdQsYz3O/SBS1qJ/o3sqUJ5wSb8gb0pul8CO0S56b9Y2ALm8zCfsjPXsqGFfoNBkDwZuZIAjhsZI03gYVQ==
+
 nan@^2.10.0, nan@^2.9.2:
   version "2.11.1"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.11.1.tgz#90e22bccb8ca57ea4cd37cc83d3819b52eea6766"
@@ -3655,6 +3704,11 @@ node-elm-compiler@^5.0.0:
     find-elm-dependencies "2.0.0"
     lodash "4.17.10"
     temp "^0.8.3"
+
+node-fetch@2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.1.2.tgz#ab884e8e7e57e38a944753cec706f788d1768bb5"
+  integrity sha1-q4hOjn5X44qUR1POxwb3iNF2i7U=
 
 node-forge@0.7.5:
   version "0.7.5"
@@ -4897,7 +4951,7 @@ request-promise@^4.2.0:
     stealthy-require "^1.1.0"
     tough-cookie ">=2.3.3"
 
-request@^2.81.0, request@^2.87.0, request@^2.88.0:
+request@^2.81.0, request@^2.83.0, request@^2.87.0, request@^2.88.0:
   version "2.88.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.88.0.tgz#9c2fca4f7d35b592efe57c7f0a55e81052124fef"
   integrity sha512-NAqBSrijGLZdM0WZNsInLJpkJokL72XYjUpnB0iwsRgxh7dB6COrHnTBNwN0E+lHDAJzu7kLAkDeY08z2/A0hg==
@@ -5849,6 +5903,14 @@ unset-value@^1.0.0:
     has-value "^0.3.1"
     isobject "^3.0.0"
 
+unzip-stream@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/unzip-stream/-/unzip-stream-0.3.0.tgz#c30c054cd6b0d64b13a23cd3ece911eb0b2b52d8"
+  integrity sha512-NG1h/MdGIX3HzyqMjyj1laBCmlPYhcO4xEy7gEqqzGiSLw7XqDQCnY4nYSn5XSaH8mQ6TFkaujrO8d/PIZN85A==
+  dependencies:
+    binary "^0.3.0"
+    mkdirp "^0.5.1"
+
 unzip@^0.1.11:
   version "0.1.11"
   resolved "https://registry.yarnpkg.com/unzip/-/unzip-0.1.11.tgz#89749c63b058d7d90d619f86b98aa1535d3b97f0"
@@ -6135,6 +6197,11 @@ websocket-extensions@>=0.1.1:
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/websocket-extensions/-/websocket-extensions-0.1.3.tgz#5d2ff22977003ec687a4b87073dfbbac146ccf29"
   integrity sha512-nqHUnMXmBzT0w570r2JpJxfiSD1IzoI+HGVdd3aZ0yNi3ngvQ4jv1dtHt5VGxfI2yj5yqImPhOK4vmIh2xMbGg==
+
+whatwg-fetch@2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/whatwg-fetch/-/whatwg-fetch-2.0.4.tgz#dde6a5df315f9d39991aa17621853d720b85566f"
+  integrity sha512-dcQ1GWpOD/eEQ97k66aiEVpNnapVj90/+R+SXTPYGHpYBBypfKJEQjLrvMZ7YXbKm21gXd4NcuxUTjiv1YtLng==
 
 which-module@^1.0.0:
   version "1.0.0"

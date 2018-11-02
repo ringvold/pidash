@@ -1,12 +1,14 @@
 module View exposing (errToString, view, viewClosestForecast, viewLineStops)
 
+import Data.StopPlace exposing (Response, StopPlace)
 import Data.Weather exposing (Forecast)
+import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Lazy exposing (lazy2)
 import Http
-import Model exposing (ActivePeriodStatus(..), Model, init)
+import Model exposing (ActivePeriodStatus(..), EnturResponse, Model, StopPlaces)
 import Msg exposing (..)
 import RemoteData exposing (WebData)
 import View.Transit as Transit
@@ -35,7 +37,9 @@ view model =
                 ]
             , viewClosestForecast model.forecasts
             ]
-        , div [ class "container-fluid", onClick RefreshTriggered ] [ viewLineStops model ]
+        , div
+            [ class "container-fluid", onClick RefreshTriggered ]
+            [ viewStopPlaces model.stopPlaces ]
         ]
 
 
@@ -67,6 +71,37 @@ viewClosestForecast forecasts =
             wrapper
                 [ text "-"
                 ]
+
+
+viewStopPlaces : StopPlaces -> Html Msg
+viewStopPlaces stops =
+    Dict.toList stops
+        |> List.map viewStopPlace
+        |> div []
+
+
+viewStopPlace : ( String, EnturResponse ) -> Html Msg
+viewStopPlace ( id, response ) =
+    case response of
+        RemoteData.Success stops ->
+            case stops.data of
+                Just stopPlace ->
+                    h1 [] [ text stopPlace.name ]
+
+                Nothing ->
+                    div []
+                        [ h1 [] [ text id ]
+                        , text <| "Id " ++ id ++ " ikke funnet"
+                        ]
+
+        RemoteData.NotAsked ->
+            div [] [ text "No stops available. Have you remembered to add stops to the configuration file?" ]
+
+        RemoteData.Loading ->
+            div [] [ h2 [ class "text-center" ] [ text "LOADING STOPS!1!" ] ]
+
+        RemoteData.Failure err ->
+            div [] [ text "ERROR!!!!1!!!" ]
 
 
 viewLineStops : Model -> Html Msg

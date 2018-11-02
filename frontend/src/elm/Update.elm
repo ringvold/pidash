@@ -3,6 +3,8 @@ module Update exposing (update)
 import Api exposing (getDeparture, getForecast)
 import Data.Direction exposing (Direction(..), directionToComparable)
 import Data.LineStop exposing (Departures, LineStop)
+import Data.StopPlace exposing (Response, StopPlace)
+import Dict exposing (Dict)
 import Model exposing (..)
 import Msg exposing (Msg(..))
 import RemoteData exposing (RemoteData(..), WebData, succeed)
@@ -62,6 +64,9 @@ update msg model =
                     |> List.append [ Task.perform ActivePeriodStartReceived Time.now ]
                 )
             )
+
+        StopReceived id response ->
+            ( { model | stopPlaces = Dict.insert id response model.stopPlaces }, Cmd.none )
 
         ForecastRequested ->
             ( setForecastLoading model, Cmd.batch [ getForecast ] )

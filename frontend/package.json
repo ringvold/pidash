@@ -14,6 +14,7 @@
     "reinstall": "yarn add rimraf && rimraf node_modules && yarn && yarn elm install"
   },
   "devDependencies": {
+    "@dillonkearns/elm-graphql": "^1.0.4",
     "autoprefixer": "^6.3.6",
     "bootstrap-sass": "^3.3.6",
     "copy-webpack-plugin": "^4.5.2",

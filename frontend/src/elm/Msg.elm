@@ -2,8 +2,10 @@ module Msg exposing (Msg(..))
 
 import Data.Direction exposing (Direction)
 import Data.LineStop exposing (Departures, LineStop, StopId)
+import Data.StopPlace exposing (Response)
 import Data.Weather exposing (Forecast)
-import RemoteData exposing (WebData)
+import Graphql.Http
+import RemoteData exposing (RemoteData, WebData)
 import Time exposing (Posix)
 
 
@@ -22,5 +24,6 @@ type Msg
     | ActivePeriodDeactivationTriggered
     | StopsRequested
     | StopsReceived (WebData (List LineStop))
+    | StopReceived String (RemoteData (Graphql.Http.Error Response) Response)
     | ForecastRequested
     | ForecastReceived (WebData (List Forecast))
