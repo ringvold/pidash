@@ -15,7 +15,6 @@ import View.Transit as Transit
 import View.Weather
 
 
-
 -- VIEW
 
 
@@ -30,17 +29,17 @@ view model =
                 Inactive ->
                     "label label-default"
     in
-    div []
-        [ div [ class "header container-fluid" ]
-            [ h1 [ class "title" ]
-                [ span [ class activeIndicator ] [ text "Avganger" ]
+        div []
+            [ div [ class "header container-fluid" ]
+                [ h1 [ class "title" ]
+                    [ span [ class activeIndicator ] [ text "Avganger" ]
+                    ]
+                , viewClosestForecast model.forecasts
                 ]
-            , viewClosestForecast model.forecasts
+            , div
+                [ class "container-fluid", onClick RefreshTriggered ]
+                [ viewStopPlaces model ]
             ]
-        , div
-            [ class "container-fluid", onClick RefreshTriggered ]
-            [ viewStopPlaces model.stopPlaces ]
-        ]
 
 
 viewClosestForecast : WebData (List Forecast) -> Html Msg
@@ -49,50 +48,35 @@ viewClosestForecast forecasts =
         wrapper =
             div [ class "quick-forecast", onClick ForecastRequested ]
     in
-    case forecasts of
-        RemoteData.Success casts ->
-            List.take 2 casts
-                |> List.map View.Weather.viewForecast
-                |> wrapper
+        case forecasts of
+            RemoteData.Success casts ->
+                List.take 2 casts
+                    |> List.map View.Weather.viewForecast
+                    |> wrapper
 
-        RemoteData.Failure err ->
-            case err of
-                Http.BadPayload error _ ->
-                    wrapper
-                        [ text error
-                        ]
+            RemoteData.Failure err ->
+                case err of
+                    Http.BadPayload error _ ->
+                        wrapper
+                            [ text error
+                            ]
 
-                _ ->
-                    wrapper
-                        [ text "err"
-                        ]
+                    _ ->
+                        wrapper
+                            [ text "err"
+                            ]
 
-        _ ->
-            wrapper
-                [ text "-"
-                ]
-
-
-viewStopPlaces : StopPlaces -> Html Msg
-viewStopPlaces stops =
-    Dict.toList stops
-        |> List.map viewStopPlace
-        |> div []
+            _ ->
+                wrapper
+                    [ text "-"
+                    ]
 
 
-viewStopPlace : ( String, EnturResponse ) -> Html Msg
-viewStopPlace ( id, response ) =
-    case response of
+viewStopPlaces : Model -> Html Msg
+viewStopPlaces model =
+    case model.stopPlaces of
         RemoteData.Success stops ->
-            case stops.data of
-                Just stopPlace ->
-                    h1 [] [ text stopPlace.name ]
-
-                Nothing ->
-                    div []
-                        [ h1 [] [ text id ]
-                        , text <| "Id " ++ id ++ " ikke funnet"
-                        ]
+            lazy2 Transit.viewStopPlaces (Dict.toList stops) model.currentTime
 
         RemoteData.NotAsked ->
             div [] [ text "No stops available. Have you remembered to add stops to the configuration file?" ]

@@ -13,17 +13,7 @@ import RemoteData exposing (RemoteData(..), WebData)
 import Time
 
 
-
 -- MODEL
-
-
-type alias Model =
-    { lineStops : WebData (List LineStop)
-    , currentTime : Maybe Time.Posix
-    , activePeriod : ActivePeriodStatus
-    , forecasts : WebData (List Forecast)
-    , stopPlaces : StopPlaces
-    }
 
 
 type alias EnturResponse =
@@ -39,6 +29,15 @@ type ActivePeriodStatus
     | Active Time.Posix
 
 
+type alias Model =
+    { lineStops : WebData (List LineStop)
+    , currentTime : Maybe Time.Posix
+    , activePeriod : ActivePeriodStatus
+    , forecasts : WebData (List Forecast)
+    , stopPlaces : WebData StopPlaces
+    }
+
+
 init : flags -> ( Model, Cmd Msg )
 init flags =
     let
@@ -47,13 +46,13 @@ init flags =
             , currentTime = Nothing
             , activePeriod = Inactive
             , forecasts = Loading
-            , stopPlaces = Dict.empty
+            , stopPlaces = Success Dict.empty
             }
     in
-    ( model
-    , Cmd.batch
-        [ Api.getStops
-        , Api.getForecast
-        , Api.getStopPlaces [ "NSR:StopPlace:58196", "NSR:StopPlace:58195", "Finnesikke" ]
-        ]
-    )
+        ( model
+        , Cmd.batch
+            [ Api.getStops
+            , Api.getForecast
+            , Api.getStopPlaces [ "NSR:StopPlace:58196", "NSR:StopPlace:58195", "Finnesikke" ]
+            ]
+        )

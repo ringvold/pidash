@@ -1,4 +1,4 @@
-module View.Transit exposing (Milliseconds, departureName, diff, errToString, getDeparturesByDirection, getTimeUntilArrival, hasDirection, viewDeparture, viewDepartures, viewMessage, viewStops)
+module View.Transit exposing (Milliseconds, viewStopPlaces, departureName, diff, errToString, getDeparturesByDirection, getTimeUntilArrival, hasDirection, viewDeparture, viewDepartures, viewMessage, viewStops)
 
 import Data.Direction exposing (Direction(..), directionToComparable)
 import Data.LineStop exposing (..)
@@ -10,16 +10,63 @@ import Http
 import Msg exposing (..)
 import RemoteData exposing (RemoteData(..))
 import Time exposing (Posix)
-
+import Model exposing (StopPlaces, EnturResponse)
+import Dict
 
 
 -- LINESTOP VIEW
+
+
+viewStopPlaces : List ( String, EnturResponse ) -> Maybe Posix -> Html Msg
+viewStopPlaces stopPlaces currentTime =
+    stopPlaces
+        |> List.map (\( _, res ) -> viewDepartures2 res currentTime)
+        |> div [ class "lineStops row" ]
 
 
 viewStops : List LineStop -> Maybe Posix -> Html Msg
 viewStops lineStops currentTime =
     List.map (\ls -> viewDepartures ls currentTime) lineStops
         |> div [ class "lineStops row" ]
+
+
+viewDepartures2 : Model.EnturResponse -> Maybe Posix -> Html Msg
+viewDepartures2 response currentTime =
+    case response of
+        Success res ->
+            case res.data of
+                Just stopPlace ->
+                    --|> getDeparturesByDirection lineStop.direction
+                    --|> List.map (\departure -> viewDeparture departure currentTime)
+                    --|> List.append [ h2 [] [ text stopPlace.name ] ]
+                    div [ class "departures col-sm-4" ] [ h2 [] [ text stopPlace.name ] ]
+
+                Nothing ->
+                    --div [ class "departures col-sm-4" ]
+                    --    [ h2 [] [ text stopPlace.name ]
+                    --    , text "Ingen avganger akkurat nå"
+                    --    ]
+                    text ""
+
+        NotAsked ->
+            div [ class "departures col-sm-4" ]
+                [ h2 [] [ text "lineStop.name" ]
+                , viewMessage "Loading" "glyphicon-refresh spinning"
+                ]
+
+        Loading ->
+            div [ class "departures col-sm-4" ]
+                [ h2 [] [ text "lineStop.name" ]
+                , viewMessage "Loading" "glyphicon-refresh spinning"
+                ]
+
+        Failure err ->
+            div [ class "departures col-sm-4" ]
+                [ h2 [] [ text "lineStop.name" ]
+                , text "error"
+
+                --, viewMessage ("Error: " ++ errToString err) "glyphicon-exclamation-sign"
+                ]
 
 
 viewDepartures : LineStop -> Maybe Posix -> Html Msg
@@ -49,7 +96,6 @@ viewDepartures lineStop currentTime =
                     [ h2 [] [ text lineStop.name ]
                     , text "Ingen avganger akkurat nå"
                     ]
-
             else
                 departures
                     |> getDeparturesByDirection lineStop.direction
@@ -98,12 +144,12 @@ viewDeparture departure currentTime =
                         |> getTimeUntilArrival theTime
                         |> text
     in
-    div
-        [ class "departure" ]
-        [ h3 []
-            [ timeUntilArrival ]
-        , div [] [ text <| departureName departure ]
-        ]
+        div
+            [ class "departure" ]
+            [ h3 []
+                [ timeUntilArrival ]
+            , div [] [ text <| departureName departure ]
+            ]
 
 
 getTimeUntilArrival : Posix -> Posix -> String
@@ -112,11 +158,10 @@ getTimeUntilArrival currentTime arrivalTime =
         timeUntilArrival =
             diff currentTime arrivalTime
     in
-    if 0 == timeUntilArrival then
-        "Nå"
-
-    else
-        String.fromInt timeUntilArrival ++ " min"
+        if 0 == timeUntilArrival then
+            "Nå"
+        else
+            String.fromInt timeUntilArrival ++ " min"
 
 
 type alias Milliseconds =
@@ -152,4 +197,4 @@ hasDirection direction departure =
         unknownDirections =
             directionToComparable Unknown
     in
-    departureDirection == unknownDirections || departureDirection == lineStopDirection
+        departureDirection == unknownDirections || departureDirection == lineStopDirection

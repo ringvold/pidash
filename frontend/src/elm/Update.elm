@@ -12,7 +12,6 @@ import Task exposing (perform)
 import Time
 
 
-
 -- UPDATE
 
 
@@ -27,9 +26,9 @@ update msg model =
                 newModel =
                     setForecastLoading model
             in
-            ( { newModel | lineStops = setLoading model |> Success }
-            , Cmd.batch [ Task.perform ActivePeriodStartReceived Time.now, fetchDepartures model, getForecast ]
-            )
+                ( { newModel | lineStops = setLoading model |> Success }
+                , Cmd.batch [ Task.perform ActivePeriodStartReceived Time.now, fetchDepartures model, getForecast ]
+                )
 
         TimeRequested ->
             ( model, Cmd.batch [ Task.perform TimeReceived Time.now ] )
@@ -58,7 +57,7 @@ update msg model =
             ( { model | lineStops = stops }
             , Cmd.batch
                 (stops
-                    |> unwrapLineStop
+                    |> RemoteData.withDefault []
                     |> List.map getDeparture
                     |> List.append [ Task.perform TimeReceived Time.now ]
                     |> List.append [ Task.perform ActivePeriodStartReceived Time.now ]
@@ -66,7 +65,7 @@ update msg model =
             )
 
         StopReceived id response ->
-            ( { model | stopPlaces = Dict.insert id response model.stopPlaces }, Cmd.none )
+            ( { model | stopPlaces = RemoteData.map (Dict.insert id response) model.stopPlaces }, Cmd.none )
 
         ForecastRequested ->
             ( setForecastLoading model, Cmd.batch [ getForecast ] )
@@ -111,37 +110,25 @@ updateStop id departures direction lineStop =
         allDirections =
             directionToComparable Unknown
     in
-    if lineStop.id == id && lineStopDirection == departureDirection then
-        { lineStop | departures = departures }
-
-    else if lineStop.id == id && lineStopDirection == allDirections then
-        { lineStop | departures = departures }
-
-    else
-        lineStop
+        if lineStop.id == id && lineStopDirection == departureDirection then
+            { lineStop | departures = departures }
+        else if lineStop.id == id && lineStopDirection == allDirections then
+            { lineStop | departures = departures }
+        else
+            lineStop
 
 
 setLoading : Model -> List LineStop
 setLoading model =
     model.lineStops
-        |> unwrapLineStop
+        |> RemoteData.withDefault []
         |> List.map (\lineStop -> { lineStop | departures = Loading })
 
 
 fetchDepartures : Model -> Cmd Msg
 fetchDepartures model =
     model.lineStops
-        |> unwrapLineStop
+        |> RemoteData.withDefault []
         |> List.map getDeparture
         |> List.append [ Task.perform TimeReceived Time.now ]
         |> Cmd.batch
-
-
-unwrapLineStop : RemoteData e (List a) -> List a
-unwrapLineStop lineStops =
-    case lineStops of
-        RemoteData.Success stops ->
-            stops
-
-        _ ->
-            []
