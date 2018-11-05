@@ -1,7 +1,7 @@
 module Api exposing (getDeparture, getForecast, getStopPlace, getStopPlaces, getStops)
 
+import Data.Entur as Entur
 import Data.LineStop exposing (..)
-import Data.StopPlace as StopPlace
 import Data.VehicleArrivalTime exposing (..)
 import Data.Weather exposing (decodeForecast)
 import Graphql.Http
@@ -16,7 +16,7 @@ import RemoteData exposing (RemoteData(..), WebData)
 
 getStopPlace : String -> Cmd Msg
 getStopPlace id =
-    StopPlace.query id
+    Entur.query id
         |> Graphql.Http.queryRequest "https://api.entur.org/journeyplanner/2.0/index/graphql"
         |> Graphql.Http.withHeader "ET-Client-Name" "github.com/ringvold/pidash-default_client_name"
         |> Graphql.Http.send (RemoteData.fromResult >> StopReceived id)

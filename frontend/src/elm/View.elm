@@ -1,6 +1,6 @@
 module View exposing (errToString, view, viewClosestForecast, viewLineStops)
 
-import Data.StopPlace exposing (Response, StopPlace)
+import Data.Entur exposing (Response, StopPlace)
 import Data.Weather exposing (Forecast)
 import Dict
 import Html exposing (..)
@@ -13,6 +13,7 @@ import Msg exposing (..)
 import RemoteData exposing (WebData)
 import View.Transit as Transit
 import View.Weather
+
 
 
 -- VIEW
@@ -29,17 +30,17 @@ view model =
                 Inactive ->
                     "label label-default"
     in
-        div []
-            [ div [ class "header container-fluid" ]
-                [ h1 [ class "title" ]
-                    [ span [ class activeIndicator ] [ text "Avganger" ]
-                    ]
-                , viewClosestForecast model.forecasts
+    div []
+        [ div [ class "header container-fluid" ]
+            [ h1 [ class "title" ]
+                [ span [ class activeIndicator ] [ text "Avganger" ]
                 ]
-            , div
-                [ class "container-fluid", onClick RefreshTriggered ]
-                [ viewStopPlaces model ]
+            , viewClosestForecast model.forecasts
             ]
+        , div
+            [ class "container-fluid", onClick RefreshTriggered ]
+            [ viewStopPlaces model ]
+        ]
 
 
 viewClosestForecast : WebData (List Forecast) -> Html Msg
@@ -48,28 +49,28 @@ viewClosestForecast forecasts =
         wrapper =
             div [ class "quick-forecast", onClick ForecastRequested ]
     in
-        case forecasts of
-            RemoteData.Success casts ->
-                List.take 2 casts
-                    |> List.map View.Weather.viewForecast
-                    |> wrapper
+    case forecasts of
+        RemoteData.Success casts ->
+            List.take 2 casts
+                |> List.map View.Weather.viewForecast
+                |> wrapper
 
-            RemoteData.Failure err ->
-                case err of
-                    Http.BadPayload error _ ->
-                        wrapper
-                            [ text error
-                            ]
+        RemoteData.Failure err ->
+            case err of
+                Http.BadPayload error _ ->
+                    wrapper
+                        [ text error
+                        ]
 
-                    _ ->
-                        wrapper
-                            [ text "err"
-                            ]
+                _ ->
+                    wrapper
+                        [ text "err"
+                        ]
 
-            _ ->
-                wrapper
-                    [ text "-"
-                    ]
+        _ ->
+            wrapper
+                [ text "-"
+                ]
 
 
 viewStopPlaces : Model -> Html Msg

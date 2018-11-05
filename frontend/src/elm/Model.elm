@@ -3,14 +3,15 @@ module Model exposing (ActivePeriodStatus(..), EnturResponse, Model, StopPlaces,
 --import Date
 
 import Api
+import Data.Entur exposing (Response)
 import Data.LineStop exposing (..)
-import Data.StopPlace exposing (Response)
 import Data.Weather exposing (Forecast, Symbol)
 import Dict exposing (Dict)
 import Graphql.Http
 import Msg exposing (..)
 import RemoteData exposing (RemoteData(..), WebData)
 import Time
+
 
 
 -- MODEL
@@ -49,10 +50,10 @@ init flags =
             , stopPlaces = Success Dict.empty
             }
     in
-        ( model
-        , Cmd.batch
-            [ Api.getStops
-            , Api.getForecast
-            , Api.getStopPlaces [ "NSR:StopPlace:58196", "NSR:StopPlace:58195", "Finnesikke" ]
-            ]
-        )
+    ( model
+    , Cmd.batch
+        [ Api.getStops
+        , Api.getForecast
+        , Api.getStopPlaces [ "NSR:StopPlace:58196", "NSR:StopPlace:58195", "Finnesikke" ]
+        ]
+    )
