@@ -1,4 +1,4 @@
-module Data.Entur exposing (Response, StopPlace, query)
+module Data.Entur exposing (DestinationDisplay, EstimatedCall, Response(..), StopPlace, query)
 
 import EnturApi.Object as EO
 import EnturApi.Object.DestinationDisplay as EOD
@@ -14,8 +14,8 @@ import Iso8601
 import Time exposing (Posix)
 
 
-type alias Response =
-    { data : Maybe StopPlace }
+type Response
+    = Response (Maybe StopPlace)
 
 
 type alias StopPlace =
@@ -26,8 +26,9 @@ type alias StopPlace =
 
 
 type alias EstimatedCall =
-    { expectedDepartureTime : Maybe Posix
+    { expectedArrivalTime : Maybe Posix
     , destinationDisplay : Maybe DestinationDisplay
+    , realtime : Maybe Bool
     }
 
 
@@ -64,8 +65,9 @@ estimatedCalls =
 estimatedCallSelection : SelectionSet EstimatedCall EO.EstimatedCall
 estimatedCallSelection =
     EOE.selection EstimatedCall
-        |> with (EOE.expectedDepartureTime |> Field.map mapDateTime)
+        |> with (EOE.expectedArrivalTime |> Field.map mapDateTime)
         |> with (EOE.destinationDisplay destinationDisplaySelection)
+        |> with EOE.realtime
 
 
 
@@ -93,7 +95,8 @@ mapDateTime datetime =
     datetime
         |> Maybe.map
             (\(DateTime value) ->
-                Iso8601.toTime value
+                Debug.log "dt values" value
+                    |> Iso8601.toTime
                     |> Debug.log "time"
                     |> Result.toMaybe
             )

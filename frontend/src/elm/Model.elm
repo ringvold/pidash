@@ -1,4 +1,4 @@
-module Model exposing (ActivePeriodStatus(..), EnturResponse, Model, StopPlaces, init)
+module Model exposing (ActivePeriodStatus(..), GraphqlData, Model, StopPlaces, init)
 
 --import Date
 
@@ -17,12 +17,12 @@ import Time
 -- MODEL
 
 
-type alias EnturResponse =
+type alias GraphqlData =
     RemoteData (Graphql.Http.Error Response) Response
 
 
 type alias StopPlaces =
-    Dict String EnturResponse
+    Dict String GraphqlData
 
 
 type ActivePeriodStatus

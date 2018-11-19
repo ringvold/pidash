@@ -8,7 +8,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Lazy exposing (lazy2)
 import Http
-import Model exposing (ActivePeriodStatus(..), EnturResponse, Model, StopPlaces)
+import Model exposing (ActivePeriodStatus(..), Model, StopPlaces)
 import Msg exposing (..)
 import RemoteData exposing (WebData)
 import View.Transit as Transit

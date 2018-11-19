@@ -15,9 +15,10 @@
             "elm/json": "1.0.0",
             "elm/time": "1.0.0",
             "elm-community/json-extra": "4.0.0",
+            "elm-community/maybe-extra": "5.0.0",
             "justinmimbs/date": "1.0.0",
             "krisajenkins/remotedata": "5.0.0",
-            "rtfeldman/elm-iso8601-date-strings": "1.1.2",
+            "ringvold/elm-iso8601-date-strings": "1.0.2",
             "ryannhg/date-format": "2.1.0"
         },
         "indirect": {
@@ -26,7 +27,8 @@
             "elm/url": "1.0.0",
             "elm/virtual-dom": "1.0.0",
             "elm-community/list-extra": "8.1.0",
-            "lukewestby/elm-string-interpolate": "1.0.3"
+            "lukewestby/elm-string-interpolate": "1.0.3",
+            "rtfeldman/elm-iso8601-date-strings": "1.1.2"
         }
     },
     "test-dependencies": {
