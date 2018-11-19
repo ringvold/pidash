@@ -95,9 +95,7 @@ mapDateTime datetime =
     datetime
         |> Maybe.map
             (\(DateTime value) ->
-                Debug.log "dt values" value
-                    |> Iso8601.toTime
-                    |> Debug.log "time"
+                Iso8601.toTime value
                     |> Result.toMaybe
             )
         |> Maybe.withDefault Nothing
