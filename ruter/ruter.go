@@ -79,7 +79,6 @@ func transformArrivalData(departures []ArrivalData) []smallerSanntidData {
 
 // Construct the arrival data URL
 func arrivalDataUrl(locationID int) string {
-	// TODO: Support spesifying direction
 	return fmt.Sprintf("http://reisapi.ruter.no/stopvisit/getdepartures/%d?", locationID)
 }
 

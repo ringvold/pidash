@@ -21,3 +21,7 @@ I have for a long time wanted to have some kind of dashboard that can show relev
 I use this dashboard with my Raspberry Pi 3 and [Raspberry Pi Touch Display](https://www.raspberrypi.org/products/raspberry-pi-touch-display/) in a [Smart Pi Touch case](https://www.adafruit.com/product/3187).
 
 If others can get some use out of this project, as-is or with some modding, I'll be very glad. :) Let me know if you enjoy it or would like some ajustments or features.
+
+
+## Todo
+- Add documentation on how to find stop and quay id from Entur API
