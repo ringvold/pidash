@@ -1,11 +1,11 @@
 lines:
   - name: 'Storo sør'
-    id: 3012122
-    direction: up
+    id: NSR:StopPlace:58195
+    quay: up
   - name: 'Grefsenveien nord'
-    id: 3010443
-    direction: up
+    id: NSR:StopPlace:58196
+    quay: NSR:Quay:11770
   - name: 'Grefsenveien sør'
-    id: 3010443
-    direction: down
+    id: NSR:StopPlace:58196
+    quay: NSR:Quay:11769
 weatherUrl: https://www.yr.no/sted/Norge/Oslo/Oslo/Storo/forecast.xml

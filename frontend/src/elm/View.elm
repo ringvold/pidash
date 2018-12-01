@@ -1,4 +1,4 @@
-module View exposing (errToString, view, viewClosestForecast, viewLineStops)
+module View exposing (errToString, view, viewClosestForecast)
 
 import Data.Entur exposing (Response, StopPlace)
 import Data.Weather exposing (Forecast)
@@ -6,14 +6,13 @@ import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Html.Lazy exposing (lazy2)
+import Html.Lazy exposing (lazy3)
 import Http
-import Model exposing (ActivePeriodStatus(..), Model, StopPlaces)
+import Model exposing (ActivePeriodStatus(..), Model)
 import Msg exposing (..)
 import RemoteData exposing (WebData)
 import View.Transit as Transit
 import View.Weather
-
 
 
 -- VIEW
@@ -30,17 +29,17 @@ view model =
                 Inactive ->
                     "label label-default"
     in
-    div []
-        [ div [ class "header container-fluid" ]
-            [ h1 [ class "title" ]
-                [ span [ class activeIndicator ] [ text "Avganger" ]
+        div []
+            [ div [ class "header container-fluid" ]
+                [ h1 [ class "title" ]
+                    [ span [ class activeIndicator ] [ text "Avganger" ]
+                    ]
+                , viewClosestForecast model.forecasts
                 ]
-            , viewClosestForecast model.forecasts
+            , div
+                [ class "container-fluid", onClick RefreshTriggered ]
+                [ viewStopPlaces model ]
             ]
-        , div
-            [ class "container-fluid", onClick RefreshTriggered ]
-            [ viewStopPlaces model ]
-        ]
 
 
 viewClosestForecast : WebData (List Forecast) -> Html Msg
@@ -49,35 +48,35 @@ viewClosestForecast forecasts =
         wrapper =
             div [ class "quick-forecast", onClick ForecastRequested ]
     in
-    case forecasts of
-        RemoteData.Success casts ->
-            List.take 2 casts
-                |> List.map View.Weather.viewForecast
-                |> wrapper
+        case forecasts of
+            RemoteData.Success casts ->
+                List.take 2 casts
+                    |> List.map View.Weather.viewForecast
+                    |> wrapper
 
-        RemoteData.Failure err ->
-            case err of
-                Http.BadPayload error _ ->
-                    wrapper
-                        [ text error
-                        ]
+            RemoteData.Failure err ->
+                case err of
+                    Http.BadPayload error _ ->
+                        wrapper
+                            [ text error
+                            ]
 
-                _ ->
-                    wrapper
-                        [ text "err"
-                        ]
+                    _ ->
+                        wrapper
+                            [ text "err"
+                            ]
 
-        _ ->
-            wrapper
-                [ text "-"
-                ]
+            _ ->
+                wrapper
+                    [ text "-"
+                    ]
 
 
 viewStopPlaces : Model -> Html Msg
 viewStopPlaces model =
-    case model.stopPlaces of
+    case model.lineStops of
         RemoteData.Success stops ->
-            lazy2 Transit.viewStopPlaces (Dict.toList stops) model.currentTime
+            lazy3 Transit.viewStopPlaces stops model.departures model.currentTime
 
         RemoteData.NotAsked ->
             div [] [ text "No stops available. Have you remembered to add stops to the configuration file?" ]
@@ -87,22 +86,6 @@ viewStopPlaces model =
 
         RemoteData.Failure err ->
             div [] [ text "ERROR!!!!1!!!" ]
-
-
-viewLineStops : Model -> Html Msg
-viewLineStops model =
-    case model.lineStops of
-        RemoteData.Success stops ->
-            lazy2 Transit.viewStops stops model.currentTime
-
-        RemoteData.NotAsked ->
-            div [] [ text "No stops available. Have you remembered to add stops to the configuration file?" ]
-
-        RemoteData.Loading ->
-            div [] [ h2 [ class "text-center" ] [ text "LOADING STOPS!1!" ] ]
-
-        RemoteData.Failure err ->
-            div [] [ text <| errToString err ]
 
 
 errToString : Http.Error -> String

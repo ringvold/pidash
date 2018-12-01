@@ -1,13 +1,15 @@
 module Data.LineStop exposing (Departures, LineStop, StopId, decodeStops)
 
 import Data.Direction exposing (Direction, decodeDirection)
+import Data.Entur exposing (EstimatedCall, Response)
 import Data.VehicleArrivalTime exposing (VehicleArrivalTime)
+import Graphql.Http
 import Json.Decode as Decode
-import RemoteData exposing (WebData)
+import RemoteData exposing (RemoteData(..), WebData)
 
 
 type alias Departures =
-    List VehicleArrivalTime
+    RemoteData String (List EstimatedCall)
 
 
 type alias StopId =
@@ -17,17 +19,15 @@ type alias StopId =
 type alias LineStop =
     { name : String
     , id : String
-    , direction : Direction
-    , departures : WebData Departures
+    , quay : String
     }
 
 
 decodeStops : Decode.Decoder (List LineStop)
 decodeStops =
     Decode.list
-        (Decode.map4 LineStop
+        (Decode.map3 LineStop
             (Decode.field "name" Decode.string)
             (Decode.field "id" Decode.string)
-            (Decode.field "direction" Decode.int |> Decode.andThen decodeDirection)
-            (Decode.succeed RemoteData.NotAsked)
+            (Decode.field "quay" Decode.string)
         )

@@ -19,11 +19,10 @@ type Msg
     | TimeRequested
     | TimeReceived Posix
     | DeparturesRequested
-    | DeparturesReceived String Direction (WebData Departures)
     | ActivePeriodStartReceived Posix
     | ActivePeriodDeactivationTriggered
     | StopsRequested
     | StopsReceived (WebData (List LineStop))
-    | StopReceived String (RemoteData (Graphql.Http.Error Response) Response)
+    | StopPlaceReceived String String (RemoteData (Graphql.Http.Error Response) Response)
     | ForecastRequested
     | ForecastReceived (WebData (List Forecast))

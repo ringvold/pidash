@@ -1,27 +1,28 @@
-module Data.Entur exposing (DestinationDisplay, EstimatedCall, Response(..), StopPlace, query)
+module Data.Entur exposing (DestinationDisplay, EstimatedCall, Response, StopPlace, query, estimatedCallByQuay)
 
 import EnturApi.Object as EO
 import EnturApi.Object.DestinationDisplay as EOD
 import EnturApi.Object.EstimatedCall as EOE
+import EnturApi.Object.Quay as EOQ
 import EnturApi.Object.StopPlace as EOS
 import EnturApi.Query
 import EnturApi.Scalar exposing (DateTime(..), Id(..))
 import Graphql.Field as Field exposing (Field)
 import Graphql.Operation exposing (RootQuery)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
-import Graphql.SelectionSet exposing (SelectionSet, with)
+import Graphql.SelectionSet exposing (SelectionSet, fieldSelection, with)
 import Iso8601
 import Time exposing (Posix)
 
 
-type Response
-    = Response (Maybe StopPlace)
+type alias Response =
+    Maybe StopPlace
 
 
 type alias StopPlace =
     { id : String
     , name : String
-    , estimatedCalls : List (Maybe EstimatedCall)
+    , estimatedCalls : List EstimatedCall
     }
 
 
@@ -29,6 +30,7 @@ type alias EstimatedCall =
     { expectedArrivalTime : Maybe Posix
     , destinationDisplay : Maybe DestinationDisplay
     , realtime : Maybe Bool
+    , quay : Maybe String
     }
 
 
@@ -38,7 +40,7 @@ type alias DestinationDisplay =
 
 query : String -> SelectionSet Response RootQuery
 query id =
-    EnturApi.Query.selection Response
+    EnturApi.Query.selection identity
         |> with
             (EnturApi.Query.stopPlace { id = id }
                 stopPlaceSelection
@@ -50,7 +52,7 @@ stopPlaceSelection =
     EOS.selection StopPlace
         |> with (EOS.id |> Field.map scalarIdToString)
         |> with EOS.name
-        |> with estimatedCalls
+        |> with (estimatedCalls |> Field.map (List.filterMap identity))
 
 
 
@@ -68,6 +70,27 @@ estimatedCallSelection =
         |> with (EOE.expectedArrivalTime |> Field.map mapDateTime)
         |> with (EOE.destinationDisplay destinationDisplaySelection)
         |> with EOE.realtime
+        |> with (EOE.quay quaySelection)
+
+
+estimatedCallByQuay : String -> EstimatedCall -> Bool
+estimatedCallByQuay quay estimatedCall =
+    case estimatedCall.quay of
+        Just q ->
+            q == quay
+
+        Nothing ->
+            False
+
+
+
+-- Quay
+
+
+quaySelection : SelectionSet String EO.Quay
+quaySelection =
+    EOQ.selection identity
+        |> with (EOQ.id |> Field.map scalarIdToString)
 
 
 

@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"reflect"
 	"strconv"
-	"strings"
 
 	"github.com/gorilla/mux"
 	"github.com/markbates/refresh/refresh/web"
@@ -127,10 +126,10 @@ func getStopsFromConfig() []pidash.Line {
 		case reflect.Slice:
 			s := reflect.ValueOf(config)
 			var (
-				id        string
-				name      string
-				direction string
-				ok        bool
+				id   string
+				name string
+				quay string
+				ok   bool
 			)
 
 			for i := 0; i < s.Len(); i++ {
@@ -155,13 +154,12 @@ func getStopsFromConfig() []pidash.Line {
 					if !ok {
 						panic(err)
 					}
-					err = errors.New("Error parsing config: Line direction must be string")
-					direction, ok = m["direction"].(string)
+					err = errors.New("Error parsing config: Quay ID must be string")
+					quay, ok = m["quay"].(string)
 					if !ok {
 						panic(err)
 					}
-					sd := directionStringToInt(direction)
-					lines = append(lines, pidash.Line{Id: id, Name: name, Direction: sd})
+					lines = append(lines, pidash.Line{Id: id, Name: name, Quay: quay})
 
 				// JSON
 				case map[string]interface{}:
@@ -179,12 +177,11 @@ func getStopsFromConfig() []pidash.Line {
 						panic(err)
 					}
 					err = errors.New("Error parsing config: Line direction must be string")
-					direction, ok = m["direction"].(string)
+					quay, ok = m["quay"].(string)
 					if !ok {
 						panic(err)
 					}
-					sd := directionStringToInt(direction)
-					lines = append(lines, pidash.Line{Id: id, Name: name, Direction: sd})
+					lines = append(lines, pidash.Line{Id: id, Name: name, Quay: quay})
 
 				}
 
@@ -193,17 +190,4 @@ func getStopsFromConfig() []pidash.Line {
 		}
 	}
 	return lines
-}
-
-func directionStringToInt(direction string) pidash.SanntidDirection {
-	switch strings.ToLower(direction) {
-	case "up":
-		return pidash.DirUp
-	case "down":
-		return pidash.DirDown
-	default:
-		log.Printf("Invalid direction '%v'. Setting direction to 'any'.", direction)
-		log.Printf("Valid directions are 'up', 'down' or 'any'.")
-		return 0
-	}
 }

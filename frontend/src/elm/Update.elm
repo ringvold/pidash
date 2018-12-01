@@ -1,8 +1,8 @@
 module Update exposing (update)
 
-import Api exposing (getDeparture, getForecast)
+import Api exposing (getForecast, getStopPlace)
 import Data.Direction exposing (Direction(..), directionToComparable)
-import Data.Entur exposing (Response, StopPlace)
+import Data.Entur exposing (EstimatedCall, Response, StopPlace)
 import Data.LineStop exposing (Departures, LineStop)
 import Dict exposing (Dict)
 import Model exposing (..)
@@ -10,7 +10,6 @@ import Msg exposing (Msg(..))
 import RemoteData exposing (RemoteData(..), WebData, succeed)
 import Task exposing (perform)
 import Time
-
 
 
 -- UPDATE
@@ -27,9 +26,9 @@ update msg model =
                 newModel =
                     setForecastLoading model
             in
-            ( { newModel | lineStops = setLoading model |> Success }
-            , Cmd.batch [ Task.perform ActivePeriodStartReceived Time.now, fetchDepartures model, getForecast ]
-            )
+                ( { newModel | departures = setLoadingDepartures model }
+                , Cmd.batch [ Task.perform ActivePeriodStartReceived Time.now, fetchDepartures model, getForecast ]
+                )
 
         TimeRequested ->
             ( model, Cmd.batch [ Task.perform TimeReceived Time.now ] )
@@ -38,12 +37,9 @@ update msg model =
             ( { model | currentTime = Just time }, Cmd.none )
 
         DeparturesRequested ->
-            ( { model | lineStops = setLoading model |> Success }
+            ( { model | departures = setLoadingDepartures model }
             , Cmd.batch [ fetchDepartures model ]
             )
-
-        DeparturesReceived id direction departures ->
-            ( updateLineStops model id direction departures, Cmd.none )
 
         ActivePeriodStartReceived time ->
             ( { model | activePeriod = Active time }, Cmd.none )
@@ -59,14 +55,21 @@ update msg model =
             , Cmd.batch
                 (stops
                     |> RemoteData.withDefault []
-                    |> List.map getDeparture
+                    |> List.map getStopPlace
                     |> List.append [ Task.perform TimeReceived Time.now ]
                     |> List.append [ Task.perform ActivePeriodStartReceived Time.now ]
                 )
             )
 
-        StopReceived id response ->
-            ( { model | stopPlaces = RemoteData.map (Dict.insert id response) model.stopPlaces }, Cmd.none )
+        StopPlaceReceived stopId quay response ->
+            let
+                departures =
+                    response
+                        |> RemoteData.withDefault Nothing
+                        |> Maybe.map .estimatedCalls
+                        |> Maybe.withDefault []
+            in
+                ( { model | departures = updateDepartures quay model departures }, Cmd.none )
 
         ForecastRequested ->
             ( setForecastLoading model, Cmd.batch [ getForecast ] )
@@ -79,59 +82,42 @@ update msg model =
 -- Update functions
 
 
+updateDepartures : String -> Model -> List EstimatedCall -> Dict String Departures
+updateDepartures quay model departures =
+    let
+        departuresForQuay =
+            departures
+                |> List.filter (Data.Entur.estimatedCallByQuay quay)
+                |> Success
+    in
+        Dict.insert quay departuresForQuay model.departures
+
+
+isJust : Maybe a -> Bool
+isJust a =
+    case a of
+        Just _ ->
+            True
+
+        Nothing ->
+            False
+
+
 setForecastLoading : Model -> Model
 setForecastLoading model =
     { model | forecasts = Loading }
 
 
-updateLineStops : Model -> String -> Direction -> WebData Departures -> Model
-updateLineStops model id direction departures =
-    case model.lineStops of
-        RemoteData.Success stops ->
-            { model | lineStops = updateLineStop id direction stops departures |> Success }
-
-        _ ->
-            model
-
-
-updateLineStop : String -> Direction -> List LineStop -> WebData Departures -> List LineStop
-updateLineStop id direction lineStops departures =
-    List.map (updateStop id departures direction) lineStops
-
-
-updateStop : String -> WebData Departures -> Direction -> LineStop -> LineStop
-updateStop id departures direction lineStop =
-    let
-        departureDirection =
-            directionToComparable direction
-
-        lineStopDirection =
-            directionToComparable lineStop.direction
-
-        allDirections =
-            directionToComparable Unknown
-    in
-    if lineStop.id == id && lineStopDirection == departureDirection then
-        { lineStop | departures = departures }
-
-    else if lineStop.id == id && lineStopDirection == allDirections then
-        { lineStop | departures = departures }
-
-    else
-        lineStop
-
-
-setLoading : Model -> List LineStop
-setLoading model =
-    model.lineStops
-        |> RemoteData.withDefault []
-        |> List.map (\lineStop -> { lineStop | departures = Loading })
+setLoadingDepartures : Model -> Dict String Departures
+setLoadingDepartures model =
+    Dict.keys model.departures
+        |> List.foldl (\key acc -> Dict.insert key Loading acc) model.departures
 
 
 fetchDepartures : Model -> Cmd Msg
 fetchDepartures model =
     model.lineStops
         |> RemoteData.withDefault []
-        |> List.map getDeparture
+        |> List.map getStopPlace
         |> List.append [ Task.perform TimeReceived Time.now ]
         |> Cmd.batch

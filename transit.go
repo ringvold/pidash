@@ -16,7 +16,7 @@ const (
 )
 
 type Line struct {
-	Name      string           `json:"name"`
-	Id        string           `json:"id"`
-	Direction SanntidDirection `json:"direction"`
+	Name string `json:"name"`
+	Id   string `json:"id"`
+	Quay string `json:"quay"`
 }
