@@ -1,7 +1,7 @@
 lines:
   - name: 'Storo sør'
     id: NSR:StopPlace:58195
-    quay: up
+    quay: NSR:Quay:11130
   - name: 'Grefsenveien nord'
     id: NSR:StopPlace:58196
     quay: NSR:Quay:11770
