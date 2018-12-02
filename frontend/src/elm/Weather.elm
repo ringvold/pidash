@@ -1,4 +1,4 @@
-module Data.Weather exposing (Forecast, Symbol, decodeForecast)
+module Weather exposing (Forecast, Symbol, decodeForecast)
 
 import Iso8601
 import Json.Decode as Decode exposing (Decoder)

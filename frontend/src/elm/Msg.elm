@@ -1,11 +1,11 @@
 module Msg exposing (Msg(..))
 
-import Data.Entur exposing (Response)
-import Data.LineStop exposing (Departures, LineStop, StopId)
-import Data.Weather exposing (Forecast)
+import Entur exposing (Response)
 import Graphql.Http
+import LineStop exposing (Departures, LineStop, StopId)
 import RemoteData exposing (RemoteData, WebData)
 import Time exposing (Posix)
+import Weather exposing (Forecast)
 
 
 

@@ -1,11 +1,11 @@
 module View.Weather exposing (symbolSvg, timePeriod, viewForecast, viewForecasts)
 
-import Data.Weather exposing (Forecast)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Msg exposing (..)
 import Time
+import Weather exposing (Forecast)
 
 
 viewForecasts : List Forecast -> List (Html Msg)

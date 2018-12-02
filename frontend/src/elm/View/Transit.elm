@@ -1,14 +1,13 @@
 module View.Transit exposing (Milliseconds, diff, errToString, getTimeUntilArrival2, viewMessage, viewStopPlaces)
 
-import Data.Entur
-import Data.LineStop exposing (..)
 import Date exposing (Date)
 import Dict exposing (Dict)
+import Entur
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Http
+import LineStop exposing (..)
 import Maybe.Extra
-import Model exposing (GraphqlData)
 import Msg exposing (..)
 import RemoteData exposing (RemoteData(..))
 import Time exposing (Posix)
@@ -72,7 +71,7 @@ viewDepartures currentTime departuresDict lineStop =
             text ""
 
 
-viewEstimatedCall : Data.Entur.EstimatedCall -> Maybe Posix -> Html msg
+viewEstimatedCall : Entur.EstimatedCall -> Maybe Posix -> Html msg
 viewEstimatedCall estimatedCall currentTime =
     let
         timeUntilArrival =
@@ -114,7 +113,7 @@ getTimeUntilArrival2 currentTime arrivalTime =
             "Avgangstid ikke tilgjengelig"
 
 
-getDestinationDisplay : Maybe Data.Entur.DestinationDisplay -> String
+getDestinationDisplay : Maybe Entur.DestinationDisplay -> String
 getDestinationDisplay destinationDisplay_ =
     case destinationDisplay_ of
         Just { frontText } ->

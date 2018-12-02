@@ -1,4 +1,4 @@
-module Data.Entur exposing (DestinationDisplay, EstimatedCall, Response, StopPlace, query, estimatedCallByQuay)
+module Entur exposing (DestinationDisplay, EstimatedCall, Response, StopPlace, estimatedCallByQuay, query)
 
 import EnturApi.Object as EO
 import EnturApi.Object.DestinationDisplay as EOD

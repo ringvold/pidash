@@ -1,6 +1,6 @@
-module Data.LineStop exposing (Departures, LineStop, StopId, decodeStops)
+module LineStop exposing (Departures, LineStop, StopId, decodeStops)
 
-import Data.Entur exposing (EstimatedCall, Response)
+import Entur exposing (EstimatedCall, Response)
 import Graphql.Http
 import Json.Decode as Decode
 import RemoteData exposing (RemoteData(..), WebData)
