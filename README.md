@@ -9,9 +9,9 @@ The UI is optimized to be displayed in a [Raspberry Pi 7" touch display](https:/
 ## How to use
 
 1. Download the binary for your platform from the [releases page](https://github.com/ringvold/pidash/releases) (or build form source for other platforms)
-2. Configure the transit stops to get information about in `pi-dash.yml`
-3. Put `pi-dash.yml` it in the same folder as the binary. See `pi-dash.yml.sample` for config example
-4. Run the binary: `./pi-dash`
+2. Configure the transit stops to display departures for in `pidash.yml`. See "["How to find stop and quay ids for the Entur API"](https://github.com/ringvold/pidash/wiki/How-to-find-stop-and-quay-ids-for-the-Entur-API) for more information.
+3. Put `pidash.yml` it in the same folder as the binary. See `pidash.yml.sample` for config example
+4. Run the binary: `./pidash`
 5. Open http://localhost:8081 in a browser
 
 ## Motivation

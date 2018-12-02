@@ -92,7 +92,7 @@ func selectedStopsHandler(stops []pidash.Line) func(http.ResponseWriter, *http.R
 }
 
 func viperSetup() {
-	viper.SetConfigName("pi-dash")
+	viper.SetConfigName("pidash")
 	viper.AddConfigPath("$HOME")
 	viper.AddConfigPath(".")
 	viper.AutomaticEnv()
