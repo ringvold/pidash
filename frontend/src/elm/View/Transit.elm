@@ -1,9 +1,7 @@
 module View.Transit exposing (Milliseconds, diff, errToString, getTimeUntilArrival2, viewMessage, viewStopPlaces)
 
-import Data.Direction exposing (Direction(..), directionToComparable)
 import Data.Entur
 import Data.LineStop exposing (..)
-import Data.VehicleArrivalTime exposing (..)
 import Date exposing (Date)
 import Dict exposing (Dict)
 import Html exposing (..)
@@ -14,6 +12,7 @@ import Model exposing (GraphqlData)
 import Msg exposing (..)
 import RemoteData exposing (RemoteData(..))
 import Time exposing (Posix)
+
 
 
 -- TRANSIT VIEW
@@ -32,44 +31,45 @@ viewDepartures currentTime departuresDict lineStop =
         maybeDepartures =
             Dict.get lineStop.quay departuresDict
     in
-        case maybeDepartures of
-            Just deps ->
-                let
-                    markup : Html msg -> Html msg
-                    markup content =
-                        div [ class "departures col-sm-4" ]
-                            [ h2 [] [ text lineStop.name ]
-                            , content
-                            ]
-                in
-                    case deps of
-                        Success departures ->
-                            let
-                                estimatedCallViews =
-                                    List.map (\departure -> viewEstimatedCall departure currentTime) departures
+    case maybeDepartures of
+        Just deps ->
+            let
+                markup : Html msg -> Html msg
+                markup content =
+                    div [ class "departures col-sm-4" ]
+                        [ h2 [] [ text lineStop.name ]
+                        , content
+                        ]
+            in
+            case deps of
+                Success departures ->
+                    let
+                        estimatedCallViews =
+                            List.map (\departure -> viewEstimatedCall departure currentTime) departures
 
-                                view =
-                                    if List.isEmpty estimatedCallViews then
-                                        div [] estimatedCallViews
-                                    else
-                                        text "Ingen avganger akkurat nå"
-                            in
-                                List.map (\departure -> viewEstimatedCall departure currentTime) departures
-                                    |> div []
-                                    |> markup
+                        view =
+                            if List.isEmpty estimatedCallViews then
+                                div [] estimatedCallViews
 
-                        NotAsked ->
-                            markup <| viewMessage "Loading" "glyphicon-refresh spinning"
+                            else
+                                text "Ingen avganger akkurat nå"
+                    in
+                    List.map (\departure -> viewEstimatedCall departure currentTime) departures
+                        |> div []
+                        |> markup
 
-                        Loading ->
-                            markup <| viewMessage "Loading" "glyphicon-refresh spinning"
+                NotAsked ->
+                    markup <| viewMessage "Loading" "glyphicon-refresh spinning"
 
-                        Failure err ->
-                            markup <| text "error"
+                Loading ->
+                    markup <| viewMessage "Loading" "glyphicon-refresh spinning"
 
-            --, viewMessage ("Error: " ++ errToString err) "glyphicon-exclamation-sign"
-            Nothing ->
-                text ""
+                Failure err ->
+                    markup <| text "error"
+
+        --, viewMessage ("Error: " ++ errToString err) "glyphicon-exclamation-sign"
+        Nothing ->
+            text ""
 
 
 viewEstimatedCall : Data.Entur.EstimatedCall -> Maybe Posix -> Html msg
@@ -85,15 +85,15 @@ viewEstimatedCall estimatedCall currentTime =
                         |> getTimeUntilArrival2 theTime
                         |> text
     in
-        div
-            [ class "departure" ]
-            [ h3 []
-                [ timeUntilArrival ]
-            , div []
-                [ text <|
-                    getDestinationDisplay estimatedCall.destinationDisplay
-                ]
+    div
+        [ class "departure" ]
+        [ h3 []
+            [ timeUntilArrival ]
+        , div []
+            [ text <|
+                getDestinationDisplay estimatedCall.destinationDisplay
             ]
+        ]
 
 
 getTimeUntilArrival2 : Posix -> Maybe Posix -> String
@@ -104,10 +104,11 @@ getTimeUntilArrival2 currentTime arrivalTime =
                 timeUntilArrival =
                     diff currentTime time
             in
-                if 0 == timeUntilArrival then
-                    "Nå"
-                else
-                    String.fromInt timeUntilArrival ++ " min"
+            if 0 == timeUntilArrival then
+                "Nå"
+
+            else
+                String.fromInt timeUntilArrival ++ " min"
 
         Nothing ->
             "Avgangstid ikke tilgjengelig"
@@ -156,10 +157,11 @@ getTimeUntilArrival currentTime arrivalTime =
         timeUntilArrival =
             diff currentTime arrivalTime
     in
-        if 0 == timeUntilArrival then
-            "Nå"
-        else
-            String.fromInt timeUntilArrival ++ " min"
+    if 0 == timeUntilArrival then
+        "Nå"
+
+    else
+        String.fromInt timeUntilArrival ++ " min"
 
 
 type alias Milliseconds =

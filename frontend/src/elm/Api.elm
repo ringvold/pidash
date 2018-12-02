@@ -2,7 +2,6 @@ module Api exposing (getForecast, getStopPlace, getStopPlaces, getStops)
 
 import Data.Entur as Entur
 import Data.LineStop exposing (..)
-import Data.VehicleArrivalTime exposing (..)
 import Data.Weather exposing (decodeForecast)
 import Graphql.Http
 import Http

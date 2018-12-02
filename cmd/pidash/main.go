@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"reflect"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/markbates/refresh/refresh/web"
@@ -16,9 +15,7 @@ import (
 
 	_ "github.com/ringvold/pidash/statik"
 	"github.com/ringvold/pidash/yr"
-
 	"github.com/ringvold/pidash"
-	"github.com/ringvold/pidash/ruter"
 )
 
 var stops []pidash.Line
@@ -36,7 +33,6 @@ func main() {
 	statikFS, _ := fs.New()
 	router := mux.NewRouter()
 
-	router.HandleFunc("/ruter/sanntid/{stopId}", ruterHandler)
 	router.HandleFunc("/ruter/selectedStops", selectedStopsHandler(stops))
 
 	router.HandleFunc("/weather/forecast", yrHandler(weatherUrl))
@@ -46,25 +42,6 @@ func main() {
 	http.ListenAndServe(fmt.Sprintf(":%v", port), web.ErrorChecker(router))
 }
 
-func ruterHandler(rw http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-
-	stopId, err := strconv.Atoi(vars["stopId"])
-	if err != nil {
-		rw.WriteHeader(http.StatusBadRequest)
-		rw.Write([]byte("Bad Request"))
-		return
-	}
-
-	data, err := ruter.GetArrivalData(stopId)
-	dataJson, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		panic(err)
-		return
-	}
-	rw.Header().Set("Access-Control-Allow-Origin", "*")
-	rw.Write(dataJson)
-}
 
 func yrHandler(url string) func(http.ResponseWriter, *http.Request) {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {

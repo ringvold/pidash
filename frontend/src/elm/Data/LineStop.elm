@@ -1,8 +1,6 @@
 module Data.LineStop exposing (Departures, LineStop, StopId, decodeStops)
 
-import Data.Direction exposing (Direction, decodeDirection)
 import Data.Entur exposing (EstimatedCall, Response)
-import Data.VehicleArrivalTime exposing (VehicleArrivalTime)
 import Graphql.Http
 import Json.Decode as Decode
 import RemoteData exposing (RemoteData(..), WebData)

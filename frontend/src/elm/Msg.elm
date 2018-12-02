@@ -1,6 +1,5 @@
 module Msg exposing (Msg(..))
 
-import Data.Direction exposing (Direction)
 import Data.Entur exposing (Response)
 import Data.LineStop exposing (Departures, LineStop, StopId)
 import Data.Weather exposing (Forecast)

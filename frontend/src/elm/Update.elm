@@ -1,7 +1,6 @@
 module Update exposing (update)
 
 import Api exposing (getForecast, getStopPlace)
-import Data.Direction exposing (Direction(..), directionToComparable)
 import Data.Entur exposing (EstimatedCall, Response, StopPlace)
 import Data.LineStop exposing (Departures, LineStop)
 import Dict exposing (Dict)
@@ -10,6 +9,7 @@ import Msg exposing (Msg(..))
 import RemoteData exposing (RemoteData(..), WebData, succeed)
 import Task exposing (perform)
 import Time
+
 
 
 -- UPDATE
@@ -26,9 +26,9 @@ update msg model =
                 newModel =
                     setForecastLoading model
             in
-                ( { newModel | departures = setLoadingDepartures model }
-                , Cmd.batch [ Task.perform ActivePeriodStartReceived Time.now, fetchDepartures model, getForecast ]
-                )
+            ( { newModel | departures = setLoadingDepartures model }
+            , Cmd.batch [ Task.perform ActivePeriodStartReceived Time.now, fetchDepartures model, getForecast ]
+            )
 
         TimeRequested ->
             ( model, Cmd.batch [ Task.perform TimeReceived Time.now ] )
@@ -69,7 +69,7 @@ update msg model =
                         |> Maybe.map .estimatedCalls
                         |> Maybe.withDefault []
             in
-                ( { model | departures = updateDepartures quay model departures }, Cmd.none )
+            ( { model | departures = updateDepartures quay model departures }, Cmd.none )
 
         ForecastRequested ->
             ( setForecastLoading model, Cmd.batch [ getForecast ] )
@@ -90,7 +90,7 @@ updateDepartures quay model departures =
                 |> List.filter (Data.Entur.estimatedCallByQuay quay)
                 |> Success
     in
-        Dict.insert quay departuresForQuay model.departures
+    Dict.insert quay departuresForQuay model.departures
 
 
 isJust : Maybe a -> Bool
