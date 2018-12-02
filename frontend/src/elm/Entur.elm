@@ -61,7 +61,15 @@ stopPlaceSelection =
 
 estimatedCalls : Field (List (Maybe EstimatedCall)) EO.StopPlace
 estimatedCalls =
-    EOS.estimatedCalls identity estimatedCallSelection
+    EOS.estimatedCalls
+        (\optionals ->
+            { optionals
+                | numberOfDeparturesPerLineAndDestinationDisplay = Present 2
+                , numberOfDepartures = Present 10
+                , timeRange = Present 7200
+            }
+        )
+        estimatedCallSelection
 
 
 estimatedCallSelection : SelectionSet EstimatedCall EO.EstimatedCall

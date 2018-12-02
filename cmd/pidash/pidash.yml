@@ -1,6 +1,6 @@
 lines:
   - name: 'Storo ringen sør'
-    id: NSR:StopPlace:58195
+    id: NSR:StopPlace:6058
     quay: NSR:Quay:11128
   - name: 'Grefsenveien nord'
     id: NSR:StopPlace:58196
