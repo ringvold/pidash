@@ -1,3 +1,6 @@
+**_This project has been retired in favour of [ringvold/nerves-pidash](https://github.com/ringvold/nerves-pidash)._**
+
+
 # pidash
 
 Pidash is a dashboard which currently can display transit information from the Ruter api (https://ruter.no/labs/) and weather from Yr (http://om.yr.no/info/verdata/). Written in Go and Elm.
